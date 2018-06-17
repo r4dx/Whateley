@@ -1,0 +1,12 @@
+.vs
+**/CMakeFiles
+**/Debug
+**/*.dir
+eeagl/Testing
+eeagl/Win32
+eeagl/*.cmake
+*.vcxproj
+*.filters
+CMakeCache.txt
+*.sln
+*.pc
