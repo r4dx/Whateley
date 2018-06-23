@@ -18,6 +18,7 @@ target_sources(eeagl_lib
 PUBLIC 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory.h 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/command.h
 )
 
 target_link_libraries(eeagl eeagl_lib)
