@@ -6,6 +6,7 @@
 #include <istream>
 #include <ostream>
 #include "command.h"
+#include "memory_dump.h"
 
 namespace eeagle {
     namespace vm {
@@ -22,13 +23,10 @@ namespace eeagle {
                 MemoryAddress(int x, int y, std::byte index) : CellAddress(x, y), index(index) {}
             };
 
-            struct Cell {
-            };
-
             struct GetCellResult {
                 bool succeed;
                 enum Error { NONE, INVALID_ADDRESS } error;
-                std::shared_ptr<const Cell> cell;
+                std::shared_ptr<const command::Cell> cell;
             };
 
             struct SetMemoryResult {
@@ -37,30 +35,13 @@ namespace eeagle {
             };
 
             class Memory {
-            protected:
-                SetMemoryResult set(MemoryAddress, command::RawCommand command);
             public:
                 GetCellResult get(const CellAddress& address) const;
-            };
-
-            struct CreateDumpableMemoryResult;
-
-            class StreamDumpableMemory : public Memory {
+                Memory(std::shared_ptr<MemoryDump> dump);
+            protected:
+                SetMemoryResult set(MemoryAddress, command::RawCommand command);
             private:
-                StreamDumpableMemory();
-            public:
-                static CreateDumpableMemoryResult create(std::istream& is);
-                void save(std::ostream& os);
-            };
-
-            struct CreateDumpableMemoryResult {
-                bool succeed;
-                enum Error {
-                    NONE,
-                    INVALID_SIGNATURE,
-                    READ_ERROR
-                } error;
-                std::shared_ptr<StreamDumpableMemory> memory;
+                std::shared_ptr<MemoryDump> dump;
             };
         }
     }

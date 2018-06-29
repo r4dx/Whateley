@@ -25,7 +25,7 @@ namespace eeagle {
                 Directional_Register_1
             };
 
-            typedef std::byte CellAddress;
+            typedef std::byte CellCommandPointer;
 
             enum Direction : unsigned char {
                 Up,
@@ -44,7 +44,7 @@ namespace eeagle {
                 std::byte number;
                 Register reg;
                 DirectionRegister directionReg;
-                CellAddress cellAddress;
+                CellCommandPointer cellCommandPointer;
                 Reference reference;
             };
 
@@ -53,6 +53,10 @@ namespace eeagle {
                 Operand operand1;
                 Operand operand2;
                 Operand operand3;
+            };
+
+            struct Cell {
+                RawCommand commands[40];
             };
 
         }
