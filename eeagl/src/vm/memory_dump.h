@@ -45,6 +45,7 @@ namespace eeagle {
             struct MemoryDump {
                 MemoryDumpHeader header;
                 command::Cell* cells;
+                ~MemoryDump();
 
                 static ReadDumpResult read(std::istream& is);
                 WriteDumpResult write(const MemoryDump& dump, std::ostream& os);

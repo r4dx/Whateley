@@ -5,6 +5,10 @@ namespace eeagle {
         namespace memory {
             const std::string MemoryDump::SIGNATURE = "EEAGL";
 
+            MemoryDump::~MemoryDump() {
+                delete[] cells;
+            }
+
             ReadDumpResult MemoryDump::read(std::istream& is) {
                 ReadDumpResult result;
                 result.isSuccess = false;
