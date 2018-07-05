@@ -37,7 +37,7 @@ namespace eeagle {
             class Memory {
             public:
                 GetCellResult get(const CellAddress& address) const;
-                Memory(std::shared_ptr<MemoryDump> dump);
+                Memory(const std::shared_ptr<MemoryDump> dump);
             protected:
                 SetMemoryResult set(MemoryAddress, command::RawCommand command);
             private:
