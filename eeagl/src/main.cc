@@ -1,7 +1,36 @@
 #include <iostream>
-#include <functional>
 
 int main() {
-    [out = std::ref(std::cout << "Hello ")]() { out.get() << "World\n"; }();
+    /* Usage:
+      Command line arguments:
+        --random - generate random simulation
+        --width <0-256> - memory width
+        --height <0-256> - memory height
+        --file <path> - load simulation from file
+        --run - Automatically run in background mode (saves simulation to ./simulation/current.<int> on interrupt)
+
+      Interactive (default):
+        run
+        stop
+        save <path>
+
+          struct GeneratorParameters {
+            int xDimension; 
+            int yDimension;
+          }
+
+          class MemoryDumpGenerator {
+            MemoryDump generateRandom(const GeneratorParameters parameters);
+          }
+
+          class Simulation {
+            Simulation(Memory& memory);
+
+            void run();
+            void stop();
+            void save(std::ostream& os);
+          }
+        
+    */
     std::cin.get();
 }
