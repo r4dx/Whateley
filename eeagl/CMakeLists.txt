@@ -19,11 +19,12 @@ include_directories(./lib/cereal-1.2.2/include)
 
 target_sources(eeagl_lib
 PUBLIC 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory.h 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory_dump.h 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory_dump.cc 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.h 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.h 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.cc 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/command.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.h
 )
 
 target_link_libraries(eeagl eeagl_lib)

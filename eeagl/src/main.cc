@@ -22,14 +22,6 @@ int main() {
           class MemoryDumpGenerator {
             MemoryDump generateRandom(const GeneratorParameters parameters);
           }
-
-          class Simulation {
-            Simulation(Memory& memory);
-            
-            void run(long steps = Simulation::InfiniteNumberOfSteps);
-            void stop();
-            void save(std::ostream& os);
-          }
         
     */
     std::cin.get();

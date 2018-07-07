@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace eeagle {
+namespace eeagl {
     namespace vm {
         namespace command {
             enum Operator : unsigned char {
