@@ -25,8 +25,8 @@ int main() {
 
           class Simulation {
             Simulation(Memory& memory);
-
-            void run();
+            
+            void run(long steps = Simulation::InfiniteNumberOfSteps);
             void stop();
             void save(std::ostream& os);
           }

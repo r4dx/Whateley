@@ -54,9 +54,9 @@ namespace eeagle {
                 Operand operand2;
                 Operand operand3;
             };
-
+            static const int CELL_SIZE = 40;
             struct Cell {
-                RawCommand commands[40];
+                RawCommand commands[CELL_SIZE];
             };
 
         }

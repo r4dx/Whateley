@@ -41,7 +41,7 @@ namespace eeagle {
                 bool isSuccess;
                 enum Error { NONE, WRITE_ERROR } error;
             };
-
+ 
             struct MemoryDump {
                 MemoryDumpHeader header;
                 command::Cell* cells;
@@ -51,7 +51,7 @@ namespace eeagle {
                 WriteDumpResult write(const MemoryDump& dump, std::ostream& os);
 
                 static const std::string SIGNATURE;
-                static const int CURRENT_VERSION = 0;
+                static const int CURRENT_VERSION = 0 + command::CELL_SIZE;
                 static const int MAX_DIMENSION = 256;
             };
         }
