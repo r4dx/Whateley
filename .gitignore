@@ -6,6 +6,7 @@ eeagl/Testing
 eeagl/Win32
 eeagl/*.cmake
 *.vcxproj
+*.vcxproj.user
 *.filters
 CMakeCache.txt
 *.sln

@@ -7,6 +7,7 @@
 #include "../../src/vm/memory/memory_dump.h"
 #include "../../src/vm/command.h"
 #include <cereal/archives/portable_binary.hpp>
+#include "memory_dump_test.h"
 
 namespace eeagl {
     namespace vm {
@@ -14,32 +15,11 @@ namespace eeagl {
             class MemoryTest : public ::testing::Test {
             protected:
                 virtual void SetUp() override {
-                    dump = createSimpleMemoryDump();
+                    auto dump = MemoryDumpTest::createSimpleMemoryDump();
                     memory = std::make_shared<Memory>(dump);
                 }
 
-                virtual void TearDown() override {
-                }
-                std::shared_ptr<MemoryDump> dump;
-                std::shared_ptr<Memory> memory;
-
-            private:
-                std::shared_ptr<MemoryDump> createSimpleMemoryDump() {
-                    std::stringstream ss;
-                    {
-                        cereal::PortableBinaryOutputArchive oarchive(ss);
-                        MemoryDumpHeader header;
-                        header.signature = "EEAGL";
-                        header.version = 0;
-                        header.xDimension = 1;
-                        header.yDimension = 1;
-                        oarchive(header);
-                    }
-                    command::Cell cell;
-                    ss.write((char*)&cell, 1);
-                    ReadDumpResult result = MemoryDump::read(ss);
-                    return result.result;
-                }
+				std::shared_ptr<Memory> memory;
             };
             TEST_F(MemoryTest, InvalidAddressOnNegativeGet) {
                 CellAddress address(-1, -1);

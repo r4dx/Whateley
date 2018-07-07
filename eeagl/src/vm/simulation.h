@@ -3,14 +3,21 @@
 #include "memory/memory.h"
 namespace eeagl {
 	namespace vm {
+
 		class Simulation {
+		public:
 			static const int InfiniteNumberOfSteps = -1;
 
 			Simulation(memory::Memory& memory);
 
-			void run(long steps = InfiniteNumberOfSteps);
+			struct RunResult {
+				int stepsPassed;
+			};
+
+			RunResult run(long steps = InfiniteNumberOfSteps);
 			void stop();
-			void save(std::ostream& os);
+		private:
+			memory::Memory& memory;
 		};
 	}
 }

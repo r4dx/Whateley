@@ -25,6 +25,7 @@ PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.cc 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/command.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.cc
 )
 
 target_link_libraries(eeagl eeagl_lib)
@@ -48,7 +49,12 @@ endif()
 
 
 enable_testing()
-add_executable(runUnitTests tests/vm/memory_test.cc tests/vm/memory_dump_test.cc)
+add_executable(runUnitTests 
+	tests/vm/memory/memory_test.cc 
+	tests/vm/memory/memory_dump_test.cc 
+	tests/vm/memory/memory_dump_test.h
+	tests/vm/simulation_test.cc)
+
 target_link_libraries(runUnitTests gtest gtest_main)
 target_link_libraries(runUnitTests eeagl_lib)
 
