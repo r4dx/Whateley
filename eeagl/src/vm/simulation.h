@@ -2,22 +2,22 @@
 #include <iostream>
 #include "memory/memory.h"
 namespace eeagl {
-	namespace vm {
+    namespace vm {
 
-		class Simulation {
-		public:
-			static const int InfiniteNumberOfSteps = -1;
+        class Simulation {
+        public:
+            static const int InfiniteNumberOfSteps = -1;
 
-			Simulation(memory::Memory& memory);
+            Simulation(memory::Memory& memory);
 
-			struct RunResult {
-				int stepsPassed;
-			};
+            struct RunResult {
+                int stepsPassed;
+            };
 
-			RunResult run(long steps = InfiniteNumberOfSteps);
-			void stop();
-		private:
-			memory::Memory& memory;
-		};
-	}
+            RunResult run(long steps = InfiniteNumberOfSteps);
+            void stop();
+        private:
+            memory::Memory& memory;
+        };
+    }
 }

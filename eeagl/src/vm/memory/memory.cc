@@ -20,7 +20,7 @@ namespace eeagl {
                 return result;
             }
 
-            Memory::Memory(std::shared_ptr<MemoryDump> dump) : dump(dump) { }
+            Memory::Memory(std::shared_ptr<MemoryDump> dump) : dump(dump) {}
         }
     }
 }

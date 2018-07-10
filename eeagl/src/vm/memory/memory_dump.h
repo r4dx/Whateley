@@ -27,11 +27,11 @@ namespace eeagl {
 
             struct ReadDumpResult {
                 bool isSuccess;
-                enum Error { 
-                    NONE, 
-                    READ_ERROR, 
-                    INVALID_SIGNATURE, 
-                    INVALID_VERSION, 
+                enum Error {
+                    NONE,
+                    READ_ERROR,
+                    INVALID_SIGNATURE,
+                    INVALID_VERSION,
                     INCORRECT_DIMENSIONS
                 } error;
                 std::shared_ptr<MemoryDump> result;
@@ -41,7 +41,7 @@ namespace eeagl {
                 bool isSuccess;
                 enum Error { NONE, WRITE_ERROR } error;
             };
- 
+
             struct MemoryDump {
                 MemoryDumpHeader header;
                 command::Cell* cells;

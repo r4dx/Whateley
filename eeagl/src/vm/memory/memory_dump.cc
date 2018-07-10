@@ -18,11 +18,11 @@ namespace eeagl {
                     cereal::PortableBinaryInputArchive iArchive(is);
                     iArchive(result.result->header);
                 }
-                catch (...) {                    
+                catch (...) {
                     result.error = ReadDumpResult::Error::READ_ERROR;
                     return result;
                 }
-                
+
                 if (result.result->header.signature != SIGNATURE) {
                     result.error = ReadDumpResult::Error::INVALID_SIGNATURE;
                     return result;
@@ -32,9 +32,9 @@ namespace eeagl {
                     return result;
                 }
 
-                if (result.result->header.xDimension < 1 || 
+                if (result.result->header.xDimension < 1 ||
                     result.result->header.yDimension < 1 ||
-                    result.result->header.xDimension > MAX_DIMENSION || 
+                    result.result->header.xDimension > MAX_DIMENSION ||
                     result.result->header.yDimension > MAX_DIMENSION) {
 
                     result.error = ReadDumpResult::Error::INCORRECT_DIMENSIONS;

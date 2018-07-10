@@ -18,8 +18,7 @@ namespace eeagl {
                     auto dump = MemoryDumpTest::createSimpleMemoryDump();
                     memory = std::make_shared<Memory>(dump);
                 }
-
-				std::shared_ptr<Memory> memory;
+                std::shared_ptr<Memory> memory;
             };
             TEST_F(MemoryTest, InvalidAddressOnNegativeGet) {
                 CellAddress address(-1, -1);

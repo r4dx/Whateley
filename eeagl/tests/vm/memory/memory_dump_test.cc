@@ -10,22 +10,22 @@ namespace eeagl {
     namespace vm {
         namespace memory {
 
-			 std::shared_ptr<MemoryDump> MemoryDumpTest::createSimpleMemoryDump() {
-				std::stringstream ss;
-				{
-					cereal::PortableBinaryOutputArchive oarchive(ss);
-					MemoryDumpHeader header;
-					header.signature = MemoryDump::SIGNATURE;
-					header.version = MemoryDump::CURRENT_VERSION ;
-					header.xDimension = 1;
-					header.yDimension = 1;
-					oarchive(header);
-				}
-				command::Cell cell;
-				ss.write((char*)&cell, 1);
-				ReadDumpResult result = MemoryDump::read(ss);
-				return result.result;
-			}
+            std::shared_ptr<MemoryDump> MemoryDumpTest::createSimpleMemoryDump() {
+                std::stringstream ss;
+                {
+                    cereal::PortableBinaryOutputArchive oarchive(ss);
+                    MemoryDumpHeader header;
+                    header.signature = MemoryDump::SIGNATURE;
+                    header.version = MemoryDump::CURRENT_VERSION;
+                    header.xDimension = 1;
+                    header.yDimension = 1;
+                    oarchive(header);
+                }
+                command::Cell cell;
+                ss.write((char*)&cell, 1);
+                ReadDumpResult result = MemoryDump::read(ss);
+                return result.result;
+            }
 
             std::shared_ptr<std::stringstream> MemoryDumpTest::createUnderlyingStreamForHeader(
                 const std::string signature,
@@ -50,7 +50,7 @@ namespace eeagl {
                 int yDimension) {
 
                 command::Cell cell;
-                std::shared_ptr<std::stringstream> ss = 
+                std::shared_ptr<std::stringstream> ss =
                     createUnderlyingStreamForHeader(signature, version, xDimension, yDimension);
                 (*ss).write((char*)&cell, xDimension * yDimension * sizeof(command::Cell));
                 return ss;

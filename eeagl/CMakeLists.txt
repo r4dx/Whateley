@@ -37,23 +37,23 @@ if(MSVC)
   set(variables 
     CMAKE_CXX_FLAGS_DEBUG
     CMAKE_CXX_FLAGS_RELEASE
-	CMAKE_CXX_FLAGS_RELWITHDEBINFO
-	CMAKE_CXX_FLAGS_MINSIZEREL
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS_MINSIZEREL
   )
   foreach(variable ${variables})
-	if(${variable} MATCHES "/MD")
-	  string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
-	endif()
+    if(${variable} MATCHES "/MD")
+        string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
+    endif()
   endforeach()
 endif()
 
 
 enable_testing()
 add_executable(runUnitTests 
-	tests/vm/memory/memory_test.cc 
-	tests/vm/memory/memory_dump_test.cc 
-	tests/vm/memory/memory_dump_test.h
-	tests/vm/simulation_test.cc)
+    tests/vm/memory/memory_test.cc 
+    tests/vm/memory/memory_dump_test.cc 
+    tests/vm/memory/memory_dump_test.h
+    tests/vm/simulation_test.cc)
 
 target_link_libraries(runUnitTests gtest gtest_main)
 target_link_libraries(runUnitTests eeagl_lib)
