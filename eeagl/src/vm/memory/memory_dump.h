@@ -4,7 +4,7 @@
 #include <ostream>
 #include <vector>
 #include <memory>
-#include "../command.h"
+#include "vm/command.h"
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/string.hpp>
 

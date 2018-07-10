@@ -3,9 +3,9 @@
 
 #include <memory>
 #include <sstream>
-#include "../../src/vm/memory/memory.h"
-#include "../../src/vm/memory/memory_dump.h"
-#include "../../src/vm/simulation.h"
+#include "vm/memory/memory.h"
+#include "vm/memory/memory_dump.h"
+#include "vm/simulation.h"
 #include "memory/memory_dump_test.h"
 
 namespace eeagl {

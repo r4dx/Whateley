@@ -28,6 +28,9 @@ PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.cc
 )
 
+target_include_directories(eeagl_lib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(eeagl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 target_link_libraries(eeagl eeagl_lib)
 
 # Tests
@@ -57,6 +60,7 @@ add_executable(runUnitTests
 
 target_link_libraries(runUnitTests gtest gtest_main)
 target_link_libraries(runUnitTests eeagl_lib)
+target_include_directories(runUnitTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set_property(TARGET eeagl_lib PROPERTY CXX_STANDARD 17)
 set_property(TARGET eeagl_lib PROPERTY CXX_STANDARD_REQUIRED ON)

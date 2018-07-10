@@ -5,7 +5,7 @@
 #include <string>
 #include <istream>
 #include <ostream>
-#include "../command.h"
+#include "vm/command.h"
 #include "memory_dump.h"
 
 namespace eeagl {

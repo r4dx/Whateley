@@ -1,6 +1,6 @@
 #pragma once
 #include "gtest/gtest.h"
-#include "../../src/vm/memory/memory_dump.h"
+#include "vm/memory/memory_dump.h"
 #include <sstream>
 #include <string>
 

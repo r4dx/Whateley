@@ -3,9 +3,9 @@
 
 #include <memory>
 #include <sstream>
-#include "../../src/vm/memory/memory.h"
-#include "../../src/vm/memory/memory_dump.h"
-#include "../../src/vm/command.h"
+#include "vm/memory/memory.h"
+#include "vm/memory/memory_dump.h"
+#include "vm/command.h"
 #include <cereal/archives/portable_binary.hpp>
 #include "memory_dump_test.h"
 

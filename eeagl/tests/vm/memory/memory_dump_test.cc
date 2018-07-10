@@ -2,8 +2,8 @@
 #include <iostream>
 
 #include <memory>
-#include "../../src/vm/memory/memory.h"
-#include "../../src/vm/command.h"
+#include "vm/memory/memory.h"
+#include "vm/command.h"
 #include <cereal/archives/portable_binary.hpp>
 
 namespace eeagl {
