@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <set>
 
 namespace eeagl {
     namespace vm {
@@ -15,15 +16,36 @@ namespace eeagl {
                 Stop
             };
 
+            static const std::set<Operator> OPERATORS = { 
+                Operator::Set, 
+                Operator::Increment,
+                Operator::JumpIfEquals,
+                Operator::Jump,
+                Operator::SetRandomDirection,
+                Operator::SwapIfEquals,
+                Operator::Stop,
+            };
+
             enum Register : unsigned char {
                 Register_1,
                 Register_2,
                 Register_3,
             };
 
+            static const std::set<Register> REGISTERS = {
+                Register::Register_1,
+                Register::Register_2,
+                Register::Register_3
+            };
+
             enum DirectionRegister : unsigned char {
                 Directional_Register_1
             };
+
+            static const std::set<DirectionRegister> DIRECTION_REGISTERS = {
+                DirectionRegister::Directional_Register_1
+            };
+
 
             typedef std::byte CellCommandPointer;
 
@@ -33,6 +55,14 @@ namespace eeagl {
                 Left,
                 Right,
                 Same
+            };
+
+            static const std::set<Direction> DIRECTIONS = {
+                Direction::Up,
+                Direction::Down,
+                Direction::Left,
+                Direction::Right,
+                Direction::Same,
             };
 
             struct Reference {

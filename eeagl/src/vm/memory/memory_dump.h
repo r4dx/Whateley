@@ -5,8 +5,7 @@
 #include <vector>
 #include <memory>
 #include "vm/command.h"
-#include <cereal/archives/portable_binary.hpp>
-#include <cereal/types/string.hpp>
+#include "vm/serialization.h"
 
 namespace eeagl {
     namespace vm {
@@ -16,11 +15,6 @@ namespace eeagl {
                 int version;
                 int xDimension;
                 int yDimension;
-
-                template<class Archive>
-                void serialize(Archive& archive) {
-                    archive(signature, version, xDimension, yDimension);
-                }
             };
 
             struct MemoryDump;
@@ -44,8 +38,7 @@ namespace eeagl {
 
             struct MemoryDump {
                 MemoryDumpHeader header;
-                command::Cell* cells;
-                ~MemoryDump();
+                std::vector< std::vector < command::Cell > > cells;
 
                 static ReadDumpResult read(std::istream& is);
                 WriteDumpResult write(const MemoryDump& dump, std::ostream& os);

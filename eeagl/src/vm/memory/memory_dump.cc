@@ -5,10 +5,6 @@ namespace eeagl {
         namespace memory {
             const std::string MemoryDump::SIGNATURE = "EEAGL";
 
-            MemoryDump::~MemoryDump() {
-                delete[] cells;
-            }
-
             ReadDumpResult MemoryDump::read(std::istream& is) {
                 ReadDumpResult result;
                 result.isSuccess = false;
@@ -16,7 +12,7 @@ namespace eeagl {
 
                 try {
                     cereal::PortableBinaryInputArchive iArchive(is);
-                    iArchive(result.result->header);
+                    iArchive(*result.result);
                 }
                 catch (...) {
                     result.error = ReadDumpResult::Error::READ_ERROR;
@@ -40,12 +36,6 @@ namespace eeagl {
                     result.error = ReadDumpResult::Error::INCORRECT_DIMENSIONS;
                     return result;
                 }
-
-
-                long size = result.result->header.xDimension * result.result->header.yDimension;
-                result.result->cells = new command::Cell[size];
-
-                is.read((char*)result.result->cells, size * sizeof(command::Cell));
                 result.isSuccess = true;
                 return result;
             }

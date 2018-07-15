@@ -13,16 +13,6 @@ int main() {
         run
         stop
         save <path>
-
-          struct GeneratorParameters {
-            int xDimension;
-            int yDimension;
-          }
-
-          class MemoryDumpGenerator {
-            MemoryDump generateRandom(const GeneratorParameters parameters);
-          }
-
     */
     std::cin.get();
 }

@@ -24,8 +24,11 @@ PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.cc 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/command.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/serialization.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/generator/generator.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/generator/generator.cc
 )
 
 target_include_directories(eeagl_lib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -53,6 +56,7 @@ endif()
 
 enable_testing()
 add_executable(runUnitTests 
+	tests/generator/generator_test.cc
     tests/vm/memory/memory_test.cc 
     tests/vm/memory/memory_dump_test.cc 
     tests/vm/memory/memory_dump_test.h
