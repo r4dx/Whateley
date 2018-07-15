@@ -6,7 +6,7 @@ namespace eeagl {
     namespace vm {
         namespace memory {
 
-            SetMemoryResult Memory::set(MemoryAddress, command::RawCommand command) {
+            SetMemoryResult Memory::set(MemoryAddress, lang::RawCommand command) {
                 SetMemoryResult result;
                 result.error = SetMemoryResult::INVALID_ADDRESS;
                 result.succeed = false;

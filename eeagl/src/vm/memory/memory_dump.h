@@ -4,8 +4,7 @@
 #include <ostream>
 #include <vector>
 #include <memory>
-#include "vm/command.h"
-#include "vm/serialization.h"
+#include "vm/lang/command.h"
 
 namespace eeagl {
     namespace vm {
@@ -38,13 +37,13 @@ namespace eeagl {
 
             struct MemoryDump {
                 MemoryDumpHeader header;
-                std::vector< std::vector < command::Cell > > cells;
+                std::vector< std::vector < lang::Cell > > cells;
 
                 static ReadDumpResult read(std::istream& is);
                 WriteDumpResult write(const MemoryDump& dump, std::ostream& os);
 
                 static const std::string SIGNATURE;
-                static const int CURRENT_VERSION = 0 + command::CELL_SIZE;
+                static const int CURRENT_VERSION = 0 + lang::CELL_SIZE;
                 static const int MAX_DIMENSION = 256;
             };
         }

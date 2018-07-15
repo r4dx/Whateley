@@ -23,8 +23,9 @@ PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.h 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.cc 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/command.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/serialization.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command_structure.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/serialization.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/generator/generator.h

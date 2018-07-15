@@ -5,11 +5,12 @@
 
 namespace eeagl {
     namespace vm {
-        namespace command {
+        namespace lang {
             enum Operator : unsigned char {
                 Set,
                 Increment,
-                JumpIfEquals,
+                JumpIfEqualsRef,
+                JumpIfEqualsReg,
                 Jump,
                 SetRandomDirection,
                 SwapIfEquals,
@@ -19,7 +20,8 @@ namespace eeagl {
             static const std::set<Operator> OPERATORS = { 
                 Operator::Set, 
                 Operator::Increment,
-                Operator::JumpIfEquals,
+                Operator::JumpIfEqualsRef,
+                Operator::JumpIfEqualsReg,
                 Operator::Jump,
                 Operator::SetRandomDirection,
                 Operator::SwapIfEquals,
@@ -45,7 +47,6 @@ namespace eeagl {
             static const std::set<DirectionRegister> DIRECTION_REGISTERS = {
                 DirectionRegister::Directional_Register_1
             };
-
 
             typedef std::byte CellCommandPointer;
 
@@ -84,6 +85,7 @@ namespace eeagl {
                 Operand operand2;
                 Operand operand3;
             };
+
             static const int CELL_SIZE = 40;
             struct Cell {
                 RawCommand commands[CELL_SIZE];

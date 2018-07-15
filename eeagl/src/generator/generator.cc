@@ -7,10 +7,10 @@ namespace eeagl {
         GeneratorParameters::GeneratorParameters() {
             xDimension = 5;
             yDimension = 5;
-            directions = vm::command::DIRECTIONS;
-            operators = vm::command::OPERATORS;
-            registers = vm::command::REGISTERS;
-            directionRegisters = vm::command::DIRECTION_REGISTERS;
+            directions = vm::lang::DIRECTIONS;
+            operators = vm::lang::OPERATORS;
+            registers = vm::lang::REGISTERS;
+            directionRegisters = vm::lang::DIRECTION_REGISTERS;
         }
 
         MemoryDumpGenerator::MemoryDumpGenerator(const GeneratorParameters parameters) : parameters(parameters) { }

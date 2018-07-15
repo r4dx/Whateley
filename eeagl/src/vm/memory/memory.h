@@ -5,7 +5,7 @@
 #include <string>
 #include <istream>
 #include <ostream>
-#include "vm/command.h"
+#include "vm/lang/command.h"
 #include "memory_dump.h"
 
 namespace eeagl {
@@ -26,7 +26,7 @@ namespace eeagl {
             struct GetCellResult {
                 bool succeed;
                 enum Error { NONE, INVALID_ADDRESS } error;
-                std::shared_ptr<const command::Cell> cell;
+                std::shared_ptr<const lang::Cell> cell;
             };
 
             struct SetMemoryResult {
@@ -39,7 +39,7 @@ namespace eeagl {
                 GetCellResult get(const CellAddress& address) const;
                 Memory(const std::shared_ptr<MemoryDump> dump);
             protected:
-                SetMemoryResult set(MemoryAddress, command::RawCommand command);
+                SetMemoryResult set(MemoryAddress, lang::RawCommand command);
             private:
                 std::shared_ptr<MemoryDump> dump;
             };

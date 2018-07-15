@@ -13,10 +13,10 @@ namespace eeagl {
                 GeneratorParameters params;
                 params.xDimension = 1;
                 params.yDimension = 1;
-                params.operators = { vm::command::Operator::Increment };
-                params.registers = { vm::command::Register::Register_1 };
-                params.directionRegisters = { vm::command::DirectionRegister::Directional_Register_1 };
-                params.directions = { vm::command::Direction::Down };
+                params.operators = { vm::lang::Operator::Increment };
+                params.registers = { vm::lang::Register::Register_1 };
+                params.directionRegisters = { vm::lang::DirectionRegister::Directional_Register_1 };
+                params.directions = { vm::lang::Direction::Down };
                 return params;
             }
         };
@@ -108,47 +108,47 @@ namespace eeagl {
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedOperatorsTest) {
             GeneratorParameters params = simplestParams();
-            params.operators = { vm::command::Operator::Stop, vm::command::Operator::Increment };
+            params.operators = { vm::lang::Operator::Stop, vm::lang::Operator::Increment };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_TRUE(result.succeed);
-            vm::command::Cell cell = result.result->cells.at(0).at(0);
+            vm::lang::Cell cell = result.result->cells.at(0).at(0);
             for (auto command : cell.commands)
                 ASSERT_NE(params.operators.find(command.op), params.operators.end());
         }
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedRegistersTest) {
             GeneratorParameters params = simplestParams();
-            params.operators = { vm::command::Operator::Increment };
-            params.registers = { vm::command::Register::Register_1, vm::command::Register::Register_2 };
+            params.operators = { vm::lang::Operator::Increment };
+            params.registers = { vm::lang::Register::Register_1, vm::lang::Register::Register_2 };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_TRUE(result.succeed);
-            vm::command::Cell cell = result.result->cells.at(0).at(0);
+            vm::lang::Cell cell = result.result->cells.at(0).at(0);
             for (auto command : cell.commands)
                 ASSERT_NE(params.registers.find(command.operand1.reg), params.registers.end());
         }
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedDirectionsTest) {
             GeneratorParameters params = simplestParams();
-            params.operators = { vm::command::Operator::Jump };
-            params.directions = { vm::command::Direction::Same };
+            params.operators = { vm::lang::Operator::Jump };
+            params.directions = { vm::lang::Direction::Same };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_TRUE(result.succeed);
-            vm::command::Cell cell = result.result->cells.at(0).at(0);
+            vm::lang::Cell cell = result.result->cells.at(0).at(0);
             for (auto command : cell.commands)
                 ASSERT_NE(params.directions.find(command.operand1.reference.direction), params.directions.end());
         }
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedDirectionRegistersTest) {
             GeneratorParameters params = simplestParams();
-            params.operators = { vm::command::Operator::SetRandomDirection };
-            params.directionRegisters = { vm::command::DirectionRegister::Directional_Register_1 };
+            params.operators = { vm::lang::Operator::SetRandomDirection };
+            params.directionRegisters = { vm::lang::DirectionRegister::Directional_Register_1 };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_TRUE(result.succeed);
-            vm::command::Cell cell = result.result->cells.at(0).at(0);
+            vm::lang::Cell cell = result.result->cells.at(0).at(0);
             for (auto command : cell.commands)
                 ASSERT_NE(params.directionRegisters.find(command.operand1.directionReg), params.directionRegisters.end());
         }

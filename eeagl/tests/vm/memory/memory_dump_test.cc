@@ -1,9 +1,12 @@
-#include "memory_dump_test.h"
 #include <iostream>
-
 #include <memory>
+#include <vector>
+
+#include "memory_dump_test.h"
 #include "vm/memory/memory.h"
-#include "vm/command.h"
+#include "vm/lang/command.h"
+#include "vm/memory/serialization.h"
+
 #include <cereal/archives/portable_binary.hpp>
 
 namespace eeagl {
@@ -21,38 +24,35 @@ namespace eeagl {
                     header.yDimension = 1;
                     oarchive(header);
                 }
-                command::Cell cell;
+                lang::Cell cell;
                 ss.write((char*)&cell, 1);
                 ReadDumpResult result = MemoryDump::read(ss);
                 return result.result;
-            }
-
-            std::shared_ptr<std::stringstream> MemoryDumpTest::createUnderlyingStreamForHeader(
-                const std::string signature,
-                int version,
-                int xDimension,
-                int yDimension) {
-
-                MemoryDumpHeader header = { signature, version, xDimension, yDimension };
-                std::shared_ptr<std::stringstream> ss = std::make_shared<std::stringstream>();
-                {
-                    cereal::PortableBinaryOutputArchive oarchive(*ss);
-                    oarchive(header);
-                }
-
-                return ss;
             }
 
             std::shared_ptr<std::istream> MemoryDumpTest::createUnderlyingStream(
                 const std::string signature,
                 int version,
                 int xDimension,
-                int yDimension) {
+                int yDimension,
+                int xRealSize,
+                int yRealSize) {
 
-                command::Cell cell;
-                std::shared_ptr<std::stringstream> ss =
-                    createUnderlyingStreamForHeader(signature, version, xDimension, yDimension);
-                (*ss).write((char*)&cell, xDimension * yDimension * sizeof(command::Cell));
+                if (xRealSize < 0)
+                    xRealSize = xDimension;
+
+                if (yRealSize < 0)
+                    yRealSize = yDimension;
+
+                std::vector < std::vector <lang::Cell> > cells(xRealSize,
+                    std::vector<lang::Cell>(yRealSize, lang::Cell()));
+
+                MemoryDump dump = { { signature, version, xDimension, yDimension }, cells };
+                std::shared_ptr<std::stringstream> ss = std::make_shared<std::stringstream>();
+                {
+                    cereal::PortableBinaryOutputArchive oarchive(*ss);
+                    oarchive(dump);
+                }
                 return ss;
             }
 
@@ -78,23 +78,23 @@ namespace eeagl {
             }
 
             TEST_F(MemoryDumpTest, ReadXDimensionLessThanZero) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStreamForHeader(
-                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, -1, 1);
+                std::shared_ptr<std::istream> ss = createUnderlyingStream(
+                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, -1, 1, 0, 0);
                 ReadDumpResult result = MemoryDump::read(*ss);
                 EXPECT_FALSE(result.isSuccess);
                 EXPECT_EQ(result.error, ReadDumpResult::Error::INCORRECT_DIMENSIONS);
             }
 
             TEST_F(MemoryDumpTest, ReadYDimensionLessThanZero) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStreamForHeader(
-                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, 1, -1);
+                std::shared_ptr<std::istream> ss = createUnderlyingStream(
+                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, 1, -1, 0, 0);
                 ReadDumpResult result = MemoryDump::read(*ss);
                 EXPECT_FALSE(result.isSuccess);
                 EXPECT_EQ(result.error, ReadDumpResult::Error::INCORRECT_DIMENSIONS);
             }
 
             TEST_F(MemoryDumpTest, ReadXDimensionGreater) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStreamForHeader(
+                std::shared_ptr<std::istream> ss = createUnderlyingStream(
                     MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, MemoryDump::MAX_DIMENSION + 1, 1);
                 ReadDumpResult result = MemoryDump::read(*ss);
                 EXPECT_FALSE(result.isSuccess);
@@ -102,7 +102,7 @@ namespace eeagl {
             }
 
             TEST_F(MemoryDumpTest, ReadYDimensionGreater) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStreamForHeader(
+                std::shared_ptr<std::istream> ss = createUnderlyingStream(
                     MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, 1, MemoryDump::MAX_DIMENSION + 1);
                 ReadDumpResult result = MemoryDump::read(*ss);
                 EXPECT_FALSE(result.isSuccess);

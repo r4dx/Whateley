@@ -1,4 +1,5 @@
 #include "memory_dump.h"
+#include "serialization.h"
 
 namespace eeagl {
     namespace vm {

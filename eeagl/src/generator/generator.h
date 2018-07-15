@@ -1,6 +1,6 @@
 #pragma once
 #include <set>
-#include "vm/command.h"
+#include "vm/lang/command.h"
 #include "vm/memory/memory_dump.h"
 #include <memory>
 
@@ -9,10 +9,10 @@ namespace eeagl {
         struct GeneratorParameters {
             int xDimension;
             int yDimension;
-            std::set<vm::command::Direction> directions;
-            std::set<vm::command::Operator> operators;
-            std::set<vm::command::Register> registers;
-            std::set<vm::command::DirectionRegister> directionRegisters;
+            std::set<vm::lang::Direction> directions;
+            std::set<vm::lang::Operator> operators;
+            std::set<vm::lang::Register> registers;
+            std::set<vm::lang::DirectionRegister> directionRegisters;
 
             GeneratorParameters();
         };
