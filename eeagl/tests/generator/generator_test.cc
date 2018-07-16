@@ -75,24 +75,6 @@ namespace eeagl {
             ASSERT_EQ(result.error, GenerateResult::Error::INVALID_DIMENSIONS);
         }
 
-        TEST_F(MemoryDumpGeneratorTest, DimensionXLargerThanMaxTest) {
-            GeneratorParameters params;
-            params.xDimension = vm::memory::MemoryDump::MAX_DIMENSION + 1;
-            MemoryDumpGenerator generator(params);
-            GenerateResult result = generator.generateRandom();
-            ASSERT_FALSE(result.succeed);
-            ASSERT_EQ(result.error, GenerateResult::Error::INVALID_DIMENSIONS);
-        }
-
-        TEST_F(MemoryDumpGeneratorTest, DimensionYLargerThanMaxTest) {
-            GeneratorParameters params;
-            params.yDimension = vm::memory::MemoryDump::MAX_DIMENSION + 1;
-            MemoryDumpGenerator generator(params);
-            GenerateResult result = generator.generateRandom();
-            ASSERT_FALSE(result.succeed);
-            ASSERT_EQ(result.error, GenerateResult::Error::INVALID_DIMENSIONS);
-        }
-
         TEST_F(MemoryDumpGeneratorTest, ExpectedDimensionsTest) {
             GeneratorParameters params = simplestParams();
             params.xDimension = 2;

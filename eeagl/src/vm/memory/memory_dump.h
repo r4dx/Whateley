@@ -41,7 +41,6 @@ namespace eeagl {
 
                 static const std::string SIGNATURE;
                 static const int CURRENT_VERSION = 0 + lang::CELL_SIZE;
-                static const int MAX_DIMENSION = 256;
             };
         }
     }

@@ -17,10 +17,8 @@ namespace eeagl {
                 std::stringstream ss;
                 {
                     cereal::PortableBinaryOutputArchive oarchive(ss);
-                    MemoryDump dump;
-                    dump.header.signature = MemoryDump::SIGNATURE;
-                    dump.header.version = MemoryDump::CURRENT_VERSION;
-                    dump.cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
+                    auto cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
+                    MemoryDump dump = { { MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION }, cells };                    
                     oarchive(dump);
                 }
                 ReadDumpResult result = MemoryDump::read(ss);
