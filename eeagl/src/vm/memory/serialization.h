@@ -59,7 +59,7 @@ namespace cereal {
 
     template<class Archive>
     void serialize(Archive& archive, eeagl::vm::memory::MemoryDumpHeader& h) {
-        archive(h.signature, h.version, h.xDimension, h.yDimension);
+        archive(h.signature, h.version);
     }
 
     template<class Archive>

@@ -12,26 +12,23 @@ namespace eeagl {
             struct MemoryDumpHeader {
                 std::string signature;
                 int version;
-                int xDimension;
-                int yDimension;
             };
 
             struct MemoryDump;
 
             struct ReadDumpResult {
-                bool isSuccess;
+                bool succeed;
                 enum Error {
                     NONE,
                     READ_ERROR,
                     INVALID_SIGNATURE,
-                    INVALID_VERSION,
-                    INCORRECT_DIMENSIONS
+                    INVALID_VERSION
                 } error;
                 std::shared_ptr<MemoryDump> result;
             };
 
             struct WriteDumpResult {
-                bool isSuccess;
+                bool succeed;
                 enum Error { NONE, WRITE_ERROR } error;
             };
 
@@ -40,7 +37,7 @@ namespace eeagl {
                 std::vector< std::vector < lang::Cell > > cells;
 
                 static ReadDumpResult read(std::istream& is);
-                WriteDumpResult write(const MemoryDump& dump, std::ostream& os);
+                WriteDumpResult write(std::ostream& os);
 
                 static const std::string SIGNATURE;
                 static const int CURRENT_VERSION = 0 + lang::CELL_SIZE;

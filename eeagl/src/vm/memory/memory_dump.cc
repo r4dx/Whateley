@@ -8,7 +8,7 @@ namespace eeagl {
 
             ReadDumpResult MemoryDump::read(std::istream& is) {
                 ReadDumpResult result;
-                result.isSuccess = false;
+                result.succeed = false;
                 result.result = std::make_shared<MemoryDump>();
 
                 try {
@@ -28,20 +28,21 @@ namespace eeagl {
                     result.error = ReadDumpResult::Error::INVALID_VERSION;
                     return result;
                 }
-
-                if (result.result->header.xDimension < 1 ||
-                    result.result->header.yDimension < 1 ||
-                    result.result->header.xDimension > MAX_DIMENSION ||
-                    result.result->header.yDimension > MAX_DIMENSION) {
-
-                    result.error = ReadDumpResult::Error::INCORRECT_DIMENSIONS;
-                    return result;
-                }
-                result.isSuccess = true;
+                result.succeed = true;
                 return result;
             }
-            WriteDumpResult MemoryDump::write(const MemoryDump& dump, std::ostream& os) {
-                return WriteDumpResult();
+            WriteDumpResult MemoryDump::write(std::ostream& os) {
+                WriteDumpResult result;
+                result.succeed = true;
+                try {
+                    cereal::PortableBinaryOutputArchive oArchive(os);
+                    oArchive(*this);
+                }
+                catch (...) {
+                    result.succeed = false;
+                    result.error = WriteDumpResult::Error::WRITE_ERROR;
+                }
+                return result;
             }
         }
     }

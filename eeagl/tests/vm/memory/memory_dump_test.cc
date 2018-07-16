@@ -17,15 +17,12 @@ namespace eeagl {
                 std::stringstream ss;
                 {
                     cereal::PortableBinaryOutputArchive oarchive(ss);
-                    MemoryDumpHeader header;
-                    header.signature = MemoryDump::SIGNATURE;
-                    header.version = MemoryDump::CURRENT_VERSION;
-                    header.xDimension = 1;
-                    header.yDimension = 1;
-                    oarchive(header);
+                    MemoryDump dump;
+                    dump.header.signature = MemoryDump::SIGNATURE;
+                    dump.header.version = MemoryDump::CURRENT_VERSION;
+                    dump.cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
+                    oarchive(dump);
                 }
-                lang::Cell cell;
-                ss.write((char*)&cell, 1);
                 ReadDumpResult result = MemoryDump::read(ss);
                 return result.result;
             }
@@ -34,20 +31,12 @@ namespace eeagl {
                 const std::string signature,
                 int version,
                 int xDimension,
-                int yDimension,
-                int xRealSize,
-                int yRealSize) {
+                int yDimension) {
 
-                if (xRealSize < 0)
-                    xRealSize = xDimension;
+                std::vector < std::vector <lang::Cell> > cells(xDimension,
+                    std::vector<lang::Cell>(yDimension, lang::Cell()));
 
-                if (yRealSize < 0)
-                    yRealSize = yDimension;
-
-                std::vector < std::vector <lang::Cell> > cells(xRealSize,
-                    std::vector<lang::Cell>(yRealSize, lang::Cell()));
-
-                MemoryDump dump = { { signature, version, xDimension, yDimension }, cells };
+                MemoryDump dump = { { signature, version }, cells };
                 std::shared_ptr<std::stringstream> ss = std::make_shared<std::stringstream>();
                 {
                     cereal::PortableBinaryOutputArchive oarchive(*ss);
@@ -59,13 +48,13 @@ namespace eeagl {
             TEST_F(MemoryDumpTest, ReadSuccessful) {
                 std::shared_ptr<std::istream> ss = createUnderlyingStream();
                 ReadDumpResult result = MemoryDump::read(*ss);
-                EXPECT_TRUE(result.isSuccess);
+                EXPECT_TRUE(result.succeed);
             }
 
             TEST_F(MemoryDumpTest, ReadInvalidSignature) {
                 std::shared_ptr<std::istream> ss = createUnderlyingStream("AAAA");
                 ReadDumpResult result = MemoryDump::read(*ss);
-                EXPECT_FALSE(result.isSuccess);
+                EXPECT_FALSE(result.succeed);
                 EXPECT_EQ(result.error, ReadDumpResult::Error::INVALID_SIGNATURE);
             }
 
@@ -73,47 +62,38 @@ namespace eeagl {
                 std::shared_ptr<std::istream> ss = createUnderlyingStream(
                     MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION + 1);
                 ReadDumpResult result = MemoryDump::read(*ss);
-                EXPECT_FALSE(result.isSuccess);
+                EXPECT_FALSE(result.succeed);
                 EXPECT_EQ(result.error, ReadDumpResult::Error::INVALID_VERSION);
-            }
-
-            TEST_F(MemoryDumpTest, ReadXDimensionLessThanZero) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStream(
-                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, -1, 1, 0, 0);
-                ReadDumpResult result = MemoryDump::read(*ss);
-                EXPECT_FALSE(result.isSuccess);
-                EXPECT_EQ(result.error, ReadDumpResult::Error::INCORRECT_DIMENSIONS);
-            }
-
-            TEST_F(MemoryDumpTest, ReadYDimensionLessThanZero) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStream(
-                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, 1, -1, 0, 0);
-                ReadDumpResult result = MemoryDump::read(*ss);
-                EXPECT_FALSE(result.isSuccess);
-                EXPECT_EQ(result.error, ReadDumpResult::Error::INCORRECT_DIMENSIONS);
-            }
-
-            TEST_F(MemoryDumpTest, ReadXDimensionGreater) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStream(
-                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, MemoryDump::MAX_DIMENSION + 1, 1);
-                ReadDumpResult result = MemoryDump::read(*ss);
-                EXPECT_FALSE(result.isSuccess);
-                EXPECT_EQ(result.error, ReadDumpResult::Error::INCORRECT_DIMENSIONS);
-            }
-
-            TEST_F(MemoryDumpTest, ReadYDimensionGreater) {
-                std::shared_ptr<std::istream> ss = createUnderlyingStream(
-                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION, 1, MemoryDump::MAX_DIMENSION + 1);
-                ReadDumpResult result = MemoryDump::read(*ss);
-                EXPECT_FALSE(result.isSuccess);
-                EXPECT_EQ(result.error, ReadDumpResult::Error::INCORRECT_DIMENSIONS);
             }
 
             TEST_F(MemoryDumpTest, ReadError) {
                 std::stringstream ss;
                 ReadDumpResult result = MemoryDump::read(ss);
-                EXPECT_FALSE(result.isSuccess);
+                EXPECT_FALSE(result.succeed);
                 EXPECT_EQ(result.error, ReadDumpResult::Error::READ_ERROR);
+            }
+
+            TEST_F(MemoryDumpTest, WriteSucceed) {
+                std::shared_ptr<std::istream> is = createUnderlyingStream(
+                    MemoryDump::SIGNATURE, 
+                    MemoryDump::CURRENT_VERSION, 
+                    1, 
+                    1);
+                ReadDumpResult readResult = MemoryDump::read(*is);
+
+                lang::RawCommand testCommand;
+                testCommand.op = lang::Operator::Increment;
+                testCommand.operand1.reg = lang::Register::Register_2;
+                readResult.result->cells[0][0].commands[0] = testCommand;
+
+                std::stringstream os;
+                WriteDumpResult writeResult = readResult.result->write(os);
+                EXPECT_TRUE(writeResult.succeed);
+                os.seekp(0);
+                ReadDumpResult readResult2 = MemoryDump::read(os);
+                EXPECT_TRUE(readResult2.succeed);
+                EXPECT_EQ(readResult2.result->cells[0][0].commands[0].op, testCommand.op);
+                EXPECT_EQ(readResult2.result->cells[0][0].commands[0].operand1.reg, testCommand.operand1.reg);
             }
         }
     }

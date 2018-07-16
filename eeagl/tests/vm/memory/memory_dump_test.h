@@ -15,9 +15,7 @@ namespace eeagl {
                     const std::string signature = MemoryDump::SIGNATURE,
                     int version = MemoryDump::CURRENT_VERSION,
                     int xDimension = 1,
-                    int yDimension = 1,
-                    int xRealSize = -1,
-                    int yRealSize = -1);
+                    int yDimension = 1);
             };
         }
     }
