@@ -71,27 +71,32 @@ namespace eeagl {
                 EXPECT_EQ(result.error, ReadDumpResult::Error::READ_ERROR);
             }
 
+            TEST_F(MemoryDumpTest, WriteError) {
+                std::shared_ptr<MemoryDump> dump = createSimpleMemoryDump();
+
+                std::stringstream ss(std::ios_base::in);
+                ss.seekp(0, std::ios::end);
+                WriteDumpResult result = dump->write(ss);
+                EXPECT_FALSE(result.succeed);
+                EXPECT_EQ(result.error, WriteDumpResult::Error::WRITE_ERROR);
+            }
+
             TEST_F(MemoryDumpTest, WriteSucceed) {
-                std::shared_ptr<std::istream> is = createUnderlyingStream(
-                    MemoryDump::SIGNATURE, 
-                    MemoryDump::CURRENT_VERSION, 
-                    1, 
-                    1);
-                ReadDumpResult readResult = MemoryDump::read(*is);
+                std::shared_ptr<MemoryDump> dump = createSimpleMemoryDump();
 
                 lang::RawCommand testCommand;
                 testCommand.op = lang::Operator::Increment;
                 testCommand.operand1.reg = lang::Register::Register_2;
-                readResult.result->cells[0][0].commands[0] = testCommand;
+                dump->cells[0][0].commands[0] = testCommand;
 
-                std::stringstream os;
-                WriteDumpResult writeResult = readResult.result->write(os);
+                std::stringstream ss;
+                WriteDumpResult writeResult = dump->write(ss);
                 EXPECT_TRUE(writeResult.succeed);
-                os.seekp(0);
-                ReadDumpResult readResult2 = MemoryDump::read(os);
-                EXPECT_TRUE(readResult2.succeed);
-                EXPECT_EQ(readResult2.result->cells[0][0].commands[0].op, testCommand.op);
-                EXPECT_EQ(readResult2.result->cells[0][0].commands[0].operand1.reg, testCommand.operand1.reg);
+                ss.seekg(0);
+                ReadDumpResult readResult = MemoryDump::read(ss);
+                EXPECT_TRUE(readResult.succeed);
+                EXPECT_EQ(readResult.result->cells[0][0].commands[0].op, testCommand.op);
+                EXPECT_EQ(readResult.result->cells[0][0].commands[0].operand1.reg, testCommand.operand1.reg);
             }
         }
     }
