@@ -12,7 +12,7 @@
 namespace cereal {
 
     template<class Archive>
-    void archiveOperand(Archive& archive, eeagl::vm::lang::OperandType opType, eeagl::vm::lang::Operand operand) {
+    void archiveOperand(Archive& archive, eeagl::vm::lang::OperandType opType, eeagl::vm::lang::Operand& operand) {
         using namespace eeagl::vm::lang;
 
         switch (opType) {
