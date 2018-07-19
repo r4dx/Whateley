@@ -4,7 +4,7 @@
 namespace eeagl {
     namespace vm {
         namespace memory {
-            const std::string MemoryDump::SIGNATURE = "EEAGL";
+            const std::string MemoryDumpHeader::SIGNATURE = "EEAGL";
 
             ReadDumpResult MemoryDump::read(std::istream& is) {
                 ReadDumpResult result;
@@ -20,11 +20,11 @@ namespace eeagl {
                     return result;
                 }
 
-                if (result.result->header.signature != SIGNATURE) {
+                if (result.result->header.signature != MemoryDumpHeader::SIGNATURE) {
                     result.error = ReadDumpResult::Error::INVALID_SIGNATURE;
                     return result;
                 }
-                if (result.result->header.version != CURRENT_VERSION) {
+                if (result.result->header.version != MemoryDumpHeader::CURRENT_VERSION) {
                     result.error = ReadDumpResult::Error::INVALID_VERSION;
                     return result;
                 }

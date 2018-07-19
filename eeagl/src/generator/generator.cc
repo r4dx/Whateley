@@ -1,5 +1,6 @@
 #pragma once
 #include "generator.h"
+#include <memory>
 
 namespace eeagl {
     namespace generator {
@@ -43,6 +44,14 @@ namespace eeagl {
                 result.error = GenerateResult::Error::ZERO_REGISTERS;
                 return result;
             }
+
+            result.result = std::make_shared<vm::memory::MemoryDump>();
+            result.result->header.signature = vm::memory::MemoryDumpHeader::SIGNATURE;
+            result.result->header.version = vm::memory::MemoryDumpHeader::CURRENT_VERSION;
+            
+            result.result->cells = std::vector< std::vector < vm::lang::Cell > >(parameters.yDimension, 
+                std::vector<vm::lang::Cell>(parameters.xDimension, vm::lang::Cell()));
+
 
             result.succeed = true;
             return result;

@@ -12,8 +12,8 @@ namespace eeagl {
                 static std::shared_ptr<MemoryDump> createSimpleMemoryDump();
             protected:
                 std::shared_ptr<std::istream> createUnderlyingStream(
-                    const std::string signature = MemoryDump::SIGNATURE,
-                    int version = MemoryDump::CURRENT_VERSION,
+                    const std::string signature = MemoryDumpHeader::SIGNATURE,
+                    int version = MemoryDumpHeader::CURRENT_VERSION,
                     int xDimension = 1,
                     int yDimension = 1);
             };

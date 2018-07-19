@@ -18,7 +18,7 @@ namespace eeagl {
                 {
                     cereal::PortableBinaryOutputArchive oarchive(ss);
                     auto cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
-                    MemoryDump dump = { { MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION }, cells };                    
+                    MemoryDump dump = { { MemoryDumpHeader::SIGNATURE, MemoryDumpHeader::CURRENT_VERSION }, cells };
                     oarchive(dump);
                 }
                 ReadDumpResult result = MemoryDump::read(ss);
@@ -58,7 +58,7 @@ namespace eeagl {
 
             TEST_F(MemoryDumpTest, ReadInvalidVersion) {
                 std::shared_ptr<std::istream> ss = createUnderlyingStream(
-                    MemoryDump::SIGNATURE, MemoryDump::CURRENT_VERSION + 1);
+                    MemoryDumpHeader::SIGNATURE, MemoryDumpHeader::CURRENT_VERSION + 1);
                 ReadDumpResult result = MemoryDump::read(*ss);
                 EXPECT_FALSE(result.succeed);
                 EXPECT_EQ(result.error, ReadDumpResult::Error::INVALID_VERSION);

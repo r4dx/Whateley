@@ -12,6 +12,9 @@ namespace eeagl {
             struct MemoryDumpHeader {
                 std::string signature;
                 int version;
+
+                static const std::string SIGNATURE;
+                static const int CURRENT_VERSION = 0 + lang::CELL_SIZE;
             };
 
             struct MemoryDump;
@@ -38,9 +41,6 @@ namespace eeagl {
 
                 static ReadDumpResult read(std::istream& is);
                 WriteDumpResult write(std::ostream& os);
-
-                static const std::string SIGNATURE;
-                static const int CURRENT_VERSION = 0 + lang::CELL_SIZE;
             };
         }
     }
