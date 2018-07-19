@@ -50,7 +50,7 @@ namespace eeagl {
 
         TEST_F(MemoryDumpGeneratorTest, ZeroDirectionRegistersTest) {
             GeneratorParameters params;
-            params.registers.clear();
+            params.directionRegisters.clear();
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_FALSE(result.succeed);
