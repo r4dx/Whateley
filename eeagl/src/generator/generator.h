@@ -1,5 +1,7 @@
 #pragma once
 #include <set>
+#include <optional>
+#include "vm/lang/command_structure.h"
 #include "vm/lang/command.h"
 #include "vm/memory/memory_dump.h"
 #include <memory>
@@ -21,11 +23,10 @@ namespace eeagl {
             bool succeed;
             enum Error { 
                 NONE, 
-                ZERO_DIRECTIONS, 
                 ZERO_OPERATORS, 
-                ZERO_REGISTERS, 
-                ZERO_DIRECTION_REGISTERS, 
-                INVALID_DIMENSIONS } error;
+                INVALID_DIMENSIONS,
+                NO_OPERAND_FOR_OPERATOR,
+                NO_OPERATOR_FOR_OPERAND } error;
 
             std::shared_ptr<vm::memory::MemoryDump> result;
         };
@@ -37,6 +38,16 @@ namespace eeagl {
 
         private:
             const GeneratorParameters parameters;
+            std::set<vm::lang::Direction> remainingDirections;
+            std::set<vm::lang::Operator> remainingOperators;
+            std::set<vm::lang::Register> remainingRegisters;
+            std::set<vm::lang::DirectionRegister> remainingDirectionRegisters;
+
+            std::optional<vm::lang::RawCommand> getCommandForOperand(vm::lang::OperandType operandType);
+            std::optional<vm::lang::Operand> getRandomOperand(vm::lang::OperandType type);
+            std::optional<vm::lang::RawCommand> getRandomCommand(vm::lang::CommandStructure structure);
+            int getOperatorWeight(vm::lang::Operator op);
+            int getOperandWeight(vm::lang::OperandType operandType);
         };
     }
 }

@@ -10,14 +10,14 @@ namespace eeagl {
             virtual void SetUp() override {
             }
 
-            GeneratorParameters simplestParams() {
+            GeneratorParameters emptyParams() {
                 GeneratorParameters params;
                 params.xDimension = 1;
                 params.yDimension = 1;
-                params.operators = { vm::lang::Operator::Increment };
-                params.registers = { vm::lang::Register::Register_1 };
-                params.directionRegisters = { vm::lang::DirectionRegister::Directional_Register_1 };
-                params.directions = { vm::lang::Direction::Down };
+                params.operators = {  };
+                params.registers = {  };
+                params.directionRegisters = {  };
+                params.directions = {  };
                 return params;
             }
         };
@@ -29,33 +29,6 @@ namespace eeagl {
             GenerateResult result = generator.generateRandom();
             ASSERT_FALSE(result.succeed);
             ASSERT_EQ(result.error, GenerateResult::Error::ZERO_OPERATORS);
-        }
-
-        TEST_F(MemoryDumpGeneratorTest, ZeroDirectionsTest) {
-            GeneratorParameters params;
-            params.directions.clear();
-            MemoryDumpGenerator generator(params);
-            GenerateResult result = generator.generateRandom();
-            ASSERT_FALSE(result.succeed);
-            ASSERT_EQ(result.error, GenerateResult::Error::ZERO_DIRECTIONS);
-        }
-
-        TEST_F(MemoryDumpGeneratorTest, ZeroRegistersTest) {
-            GeneratorParameters params;
-            params.registers.clear();
-            MemoryDumpGenerator generator(params);
-            GenerateResult result = generator.generateRandom();
-            ASSERT_FALSE(result.succeed);
-            ASSERT_EQ(result.error, GenerateResult::Error::ZERO_REGISTERS);
-        }
-
-        TEST_F(MemoryDumpGeneratorTest, ZeroDirectionRegistersTest) {
-            GeneratorParameters params;
-            params.directionRegisters.clear();
-            MemoryDumpGenerator generator(params);
-            GenerateResult result = generator.generateRandom();
-            ASSERT_FALSE(result.succeed);
-            ASSERT_EQ(result.error, GenerateResult::Error::ZERO_DIRECTION_REGISTERS);
         }
 
         TEST_F(MemoryDumpGeneratorTest, DimensionXLessThanZeroTest) {
@@ -77,9 +50,10 @@ namespace eeagl {
         }
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedDimensionsTest) {
-            GeneratorParameters params = simplestParams();
+            GeneratorParameters params = emptyParams();
             params.xDimension = 2;
             params.yDimension = 3;
+            params.operators = { vm::lang::Operator::Stop };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_TRUE(result.succeed);
@@ -100,7 +74,7 @@ namespace eeagl {
         }
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedOperatorsTest) {
-            GeneratorParameters params = simplestParams();
+            GeneratorParameters params = emptyParams();
             params.operators = { vm::lang::Operator::Stop, vm::lang::Operator::Increment };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
@@ -114,7 +88,7 @@ namespace eeagl {
         }
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedRegistersTest) {
-            GeneratorParameters params = simplestParams();
+            GeneratorParameters params = emptyParams();
             params.operators = { vm::lang::Operator::Increment };
             params.registers = { vm::lang::Register::Register_2, vm::lang::Register::Register_3 };
             MemoryDumpGenerator generator(params);
@@ -128,10 +102,31 @@ namespace eeagl {
             });
         }
 
+        TEST_F(MemoryDumpGeneratorTest, NoOperatorForOperandTest) {
+            GeneratorParameters params = emptyParams();
+            params.operators = { vm::lang::Operator::Increment };
+            params.directionRegisters = { vm::lang::DirectionRegister::Directional_Register_1 };
+            params.registers = { vm::lang::Register::Register_1 };
+            MemoryDumpGenerator generator(params);
+            GenerateResult result = generator.generateRandom();
+            ASSERT_FALSE(result.succeed);
+            ASSERT_EQ(result.error, GenerateResult::Error::NO_OPERATOR_FOR_OPERAND);
+        }
+
+        TEST_F(MemoryDumpGeneratorTest, NoOperandForOperatorTest) {
+            GeneratorParameters params = emptyParams();
+            params.operators = { vm::lang::Operator::Increment };
+            MemoryDumpGenerator generator(params);
+            GenerateResult result = generator.generateRandom();
+            ASSERT_FALSE(result.succeed);
+            ASSERT_EQ(result.error, GenerateResult::Error::NO_OPERAND_FOR_OPERATOR);
+        }
+
         TEST_F(MemoryDumpGeneratorTest, ExpectedDirectionsTest) {
-            GeneratorParameters params = simplestParams();
-            params.operators = { vm::lang::Operator::Jump };
+            GeneratorParameters params = emptyParams();
+            params.operators = { vm::lang::Operator::SwapIfEquals };
             params.directions = { vm::lang::Direction::Same };
+            params.registers = { vm::lang::Register::Register_1 };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_TRUE(result.succeed);
@@ -144,7 +139,7 @@ namespace eeagl {
         }
 
         TEST_F(MemoryDumpGeneratorTest, ExpectedDirectionRegistersTest) {
-            GeneratorParameters params = simplestParams();
+            GeneratorParameters params = emptyParams();
             params.operators = { vm::lang::Operator::SetRandomDirection };
             params.directionRegisters = { vm::lang::DirectionRegister::Directional_Register_1 };
             MemoryDumpGenerator generator(params);

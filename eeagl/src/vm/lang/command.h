@@ -85,8 +85,9 @@ namespace eeagl {
                 Operand operand2;
                 Operand operand3;
             };
-
             static const int CELL_SIZE = 40;
+            static const int MIN_NUMBER = 0;
+            static const int MAX_NUMBER = CELL_SIZE;
             struct Cell {
                 RawCommand commands[CELL_SIZE];
             };
