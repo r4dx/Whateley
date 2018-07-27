@@ -42,12 +42,17 @@ namespace eeagl {
             std::set<vm::lang::Operator> remainingOperators;
             std::set<vm::lang::Register> remainingRegisters;
             std::set<vm::lang::DirectionRegister> remainingDirectionRegisters;
+            std::vector<vm::lang::RawCommand> commandsToAdd;
 
             std::optional<vm::lang::RawCommand> getCommandForOperand(vm::lang::OperandType operandType);
             std::optional<vm::lang::Operand> getRandomOperand(vm::lang::OperandType type);
             std::optional<vm::lang::RawCommand> getRandomCommand(vm::lang::CommandStructure structure);
             int getOperatorWeight(vm::lang::Operator op);
             int getOperandWeight(vm::lang::OperandType operandType);
+
+            template <typename T>
+            bool addCommandsForOperandUntilNonRemaining(std::set<T>& set);
+
         };
     }
 }

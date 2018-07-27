@@ -1,6 +1,8 @@
 #pragma once
 #include "command.h"
 #include <unordered_map>
+#include <type_traits>
+
 namespace eeagl {
     namespace vm {
         namespace lang {
@@ -11,6 +13,57 @@ namespace eeagl {
                 TypeDirectionRegister,
                 TypeCellCommandPointer,
                 TypeReference
+            };
+
+            template <typename T>
+            OperandType OperandToOperandType() {
+                if (std::is_same<T, Register>::value)
+                    return OperandType::TypeRegister;
+
+                if (std::is_same<T, DirectionRegister>::value)
+                    return OperandType::TypeDirectionRegister;
+
+                if (std::is_same<T, Reference>::value)
+                    return OperandType::TypeReference;
+
+                if (std::is_same<T, std::byte>::value)
+                    return OperandType::TypeNumber;
+
+                if (std::is_same<T, CellCommandPointer>::value)
+                    return OperandType::TypeCellCommandPointer;
+
+                return OperandType::NonExistent;
+            };
+
+
+            template <OperandType T>
+            struct OperandTypeToOperand {
+                using type = void;
+            };
+
+            template <>
+            struct OperandTypeToOperand<OperandType::TypeRegister> {
+                using type = Register;
+            };
+
+            template <>
+            struct OperandTypeToOperand<OperandType::TypeDirectionRegister> {
+                using type = DirectionRegister;
+            };
+
+            template <>
+            struct OperandTypeToOperand<OperandType::TypeReference> {
+                using type = Reference;
+            };
+
+            template <>
+            struct OperandTypeToOperand<OperandType::TypeCellCommandPointer> {
+                using type = CellCommandPointer;
+            };
+
+            template <>
+            struct OperandTypeToOperand<OperandType::TypeNumber> {
+                using type = std::byte;
             };
 
             struct CommandStructure {

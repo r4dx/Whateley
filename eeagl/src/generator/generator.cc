@@ -50,6 +50,21 @@ namespace eeagl {
 
         MemoryDumpGenerator::MemoryDumpGenerator(const GeneratorParameters parameters) : parameters(parameters) { }
 
+
+
+        template <typename T>
+        bool MemoryDumpGenerator::addCommandsForOperandUntilNonRemaining(std::set<T>& set) {
+            vm::lang::OperandType operandType = vm::lang::OperandToOperandType<T>();
+            while (set.size() > 0) {
+                auto command = getCommandForOperand(operandType);
+                if (!command.has_value()) {
+                    return false;
+                }
+                commandsToAdd.push_back(*command);
+            }
+            return true;
+        }
+
         GenerateResult MemoryDumpGenerator::generateRandom() {
             GenerateResult result;
             result.succeed = false;
@@ -77,8 +92,7 @@ namespace eeagl {
             remainingOperators = parameters.operators;
             remainingRegisters = parameters.registers;
             remainingDirectionRegisters = parameters.directionRegisters;
-
-            std::vector<vm::lang::RawCommand> commandsToAdd;
+            commandsToAdd.clear();
 
             while (remainingOperators.size() > 0) {
                 vm::lang::RawCommand command;
@@ -92,24 +106,11 @@ namespace eeagl {
                 commandsToAdd.push_back(command);
             }
 
-            while (remainingRegisters.size() > 0) {
-                auto command = getCommandForOperand(vm::lang::OperandType::TypeRegister);
-                if (!command.has_value()) {
-                    result.error = GenerateResult::Error::NO_OPERATOR_FOR_OPERAND;
-                    return result;
-                }
-                    
-                commandsToAdd.push_back(*command);
-            }
-
-            while (remainingDirectionRegisters.size() > 0) {
-                auto command = getCommandForOperand(vm::lang::OperandType::TypeDirectionRegister);
-                if (!command.has_value()) {
-                    result.error = GenerateResult::Error::NO_OPERATOR_FOR_OPERAND;
-                    return result;
-                }
-
-                commandsToAdd.push_back(*command);
+            if (!addCommandsForOperandUntilNonRemaining<vm::lang::Register>(remainingRegisters) || 
+                !addCommandsForOperandUntilNonRemaining<vm::lang::DirectionRegister>(remainingDirectionRegisters))
+            {
+                result.error = GenerateResult::Error::NO_OPERATOR_FOR_OPERAND;
+                return result;
             }
 
             /*
@@ -220,7 +221,6 @@ namespace eeagl {
             auto structure = vm::lang::COMMAND_STRUCTURE.at(op);
             return getOperandWeight(structure.operand1) + getOperandWeight(structure.operand2) +
                 getOperandWeight(structure.operand3);
-
         }
 
         int MemoryDumpGenerator::getOperandWeight(vm::lang::OperandType operandType) {
