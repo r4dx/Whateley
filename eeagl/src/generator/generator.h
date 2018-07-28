@@ -26,7 +26,9 @@ namespace eeagl {
                 ZERO_OPERATORS, 
                 INVALID_DIMENSIONS,
                 NO_OPERAND_FOR_OPERATOR,
-                NO_OPERATOR_FOR_OPERAND } error;
+                NO_OPERATOR_FOR_OPERAND,
+                NOT_ENOUGH_SLOTS
+            } error;
 
             std::shared_ptr<vm::memory::MemoryDump> result;
         };
@@ -51,7 +53,8 @@ namespace eeagl {
             int getOperandWeight(vm::lang::OperandType operandType);
 
             template <typename T>
-            bool addCommandsForOperandUntilNonRemaining(std::set<T>& set);
+            bool addCommandsForOperandUntilNonRemaining(std::set<T>& set, 
+                std::optional<vm::lang::OperandType> operandType = std::nullopt);
 
         };
     }

@@ -19,7 +19,7 @@ namespace eeagl {
             std::sample(set.begin(), set.end(), std::back_inserter(result),
                 1, std::mt19937{ std::random_device{}() });
             T value = result[0];
-            return std::make_optional<T>(value);
+            return value;
         }
 
         template <typename T>
@@ -53,10 +53,14 @@ namespace eeagl {
 
 
         template <typename T>
-        bool MemoryDumpGenerator::addCommandsForOperandUntilNonRemaining(std::set<T>& set) {
-            vm::lang::OperandType operandType = vm::lang::OperandToOperandType<T>();
+        bool MemoryDumpGenerator::addCommandsForOperandUntilNonRemaining(std::set<T>& set, 
+            std::optional<vm::lang::OperandType> operandType) {
+
+            if (!operandType.has_value())
+                operandType = vm::lang::OperandToOperandType<T>();
+
             while (set.size() > 0) {
-                auto command = getCommandForOperand(operandType);
+                auto command = getCommandForOperand(*operandType);
                 if (!command.has_value()) {
                     return false;
                 }
@@ -95,35 +99,35 @@ namespace eeagl {
             commandsToAdd.clear();
 
             while (remainingOperators.size() > 0) {
-                vm::lang::RawCommand command;
-                command.op = *(getRandom<vm::lang::Operator>(remainingOperators, parameters.operators));
-                auto structure = vm::lang::COMMAND_STRUCTURE.at(command.op);
+                auto commandOp = *(getRandom<vm::lang::Operator>(remainingOperators, parameters.operators));
+                auto structure = vm::lang::COMMAND_STRUCTURE.at(commandOp);
                 auto commandResult = getRandomCommand(structure);
                 if (!commandResult.has_value()) {
                     result.error = GenerateResult::Error::NO_OPERAND_FOR_OPERATOR;
                     return result;
                 }
-                commandsToAdd.push_back(command);
+                commandsToAdd.push_back(*commandResult);
             }
 
             if (!addCommandsForOperandUntilNonRemaining<vm::lang::Register>(remainingRegisters) || 
-                !addCommandsForOperandUntilNonRemaining<vm::lang::DirectionRegister>(remainingDirectionRegisters))
+                !addCommandsForOperandUntilNonRemaining<vm::lang::DirectionRegister>(remainingDirectionRegisters) ||
+                !addCommandsForOperandUntilNonRemaining<vm::lang::Direction>(remainingDirections, 
+                    vm::lang::OperandType::TypeReference))
             {
                 result.error = GenerateResult::Error::NO_OPERATOR_FOR_OPERAND;
                 return result;
             }
 
+            if (commandsToAdd.size() > commandSlots) {
+                result.error = GenerateResult::Error::NOT_ENOUGH_SLOTS;
+                return result;
+            }
+
+
             /*
                 fulfillment algorithm:
 
-
-                    while(remainingDirections.size() > 0)
-                    commands_to_add.add(getCommandWithArgument<Reference>();
-
                 ...
-
-                if (commands_to_add.size() > commandSlots)
-                    return error;
 
                 for (auto command : commands_to_add)
                     insertIntoRandomPlace(command);
@@ -161,7 +165,7 @@ namespace eeagl {
             command.operand1 = *operand1Result;
             command.operand2 = *operand2Result;
             command.operand3 = *operand3Result;
-            return std::make_optional<vm::lang::RawCommand>(command);
+            return command;
         }
 
         std::optional<vm::lang::Operand> MemoryDumpGenerator::getRandomOperand(vm::lang::OperandType type) {
@@ -214,7 +218,7 @@ namespace eeagl {
             }
             }
 
-            return std::make_optional<vm::lang::Operand>(result);
+            return result;
         }
 
         int MemoryDumpGenerator::getOperatorWeight(vm::lang::Operator op) {

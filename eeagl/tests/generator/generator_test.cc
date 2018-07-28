@@ -62,6 +62,21 @@ namespace eeagl {
                 ASSERT_EQ(col.size(), params.xDimension);
         }
 
+        TEST_F(MemoryDumpGeneratorTest, NotEnoughSlotsTest) {
+            GeneratorParameters params = emptyParams();
+            params.xDimension = 1;
+            params.yDimension = 1;
+            params.operators = vm::lang::OPERATORS;
+            params.directions = vm::lang::DIRECTIONS;
+            params.directionRegisters = vm::lang::DIRECTION_REGISTERS;
+            params.registers = vm::lang::REGISTERS;
+
+            MemoryDumpGenerator generator(params);
+            GenerateResult result = generator.generateRandom();
+            ASSERT_FALSE(result.succeed);
+            ASSERT_EQ(result.error, GenerateResult::Error::NOT_ENOUGH_SLOTS);
+        }
+
         void testAtLeastOneAndExpected(std::set<vm::lang::Operator> operators, vm::lang::Cell& cell,
             std::function<void(vm::lang::RawCommand)> assertion) {
             bool atLeastOne = false;
