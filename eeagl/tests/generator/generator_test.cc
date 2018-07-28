@@ -2,6 +2,8 @@
 #include "generator/generator.h"
 #include <vector>
 #include <functional>
+#include "vm/lang/command_structure.h"
+#include "vm/lang/command.h"
 
 namespace eeagl {
     namespace generator {
@@ -62,7 +64,44 @@ namespace eeagl {
                 ASSERT_EQ(col.size(), params.xDimension);
         }
 
+        void decrementOnOperandType(vm::lang::OperandType operandType, int& unusedDirections,
+            int& unusedDirectionRegisters, int& unusedRegisters) {
+            switch (operandType) {
+            case vm::lang::OperandType::TypeDirectionRegister:
+                unusedDirectionRegisters--;
+                break;
+            case vm::lang::OperandType::TypeRegister:
+                unusedRegisters--;
+                break;
+            case vm::lang::OperandType::TypeReference:
+                unusedDirections--;
+                unusedRegisters--;
+                break;
+            }
+        }
+
+        bool notEnoughSlotsPossible() {
+            int unusedDirections = vm::lang::DIRECTIONS.size();
+            int unusedDirectionRegisters = vm::lang::DIRECTION_REGISTERS.size();
+            int unusedRegisters = vm::lang::REGISTERS.size();
+
+            for (auto kv : vm::lang::COMMAND_STRUCTURE) {
+                decrementOnOperandType(kv.second.operand1, unusedDirections, unusedDirectionRegisters, unusedRegisters);
+                decrementOnOperandType(kv.second.operand2, unusedDirections, unusedDirectionRegisters, unusedRegisters);
+                decrementOnOperandType(kv.second.operand3, unusedDirections, unusedDirectionRegisters, unusedRegisters);
+            }
+
+            int slots = vm::lang::CELL_SIZE - vm::lang::OPERATORS.size() - 
+                unusedDirectionRegisters - unusedDirections - unusedRegisters;
+
+            return slots > 0;
+        }
+
         TEST_F(MemoryDumpGeneratorTest, NotEnoughSlotsTest) {
+
+            if (!notEnoughSlotsPossible())
+                return;
+
             GeneratorParameters params = emptyParams();
             params.xDimension = 1;
             params.yDimension = 1;

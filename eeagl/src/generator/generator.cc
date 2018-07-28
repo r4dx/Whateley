@@ -90,7 +90,7 @@ namespace eeagl {
             result.result->cells = std::vector< std::vector < vm::lang::Cell > >(parameters.yDimension, 
                 std::vector<vm::lang::Cell>(parameters.xDimension, vm::lang::Cell()));
 
-            int commandSlots = parameters.yDimension * parameters.xDimension * vm::lang::CELL_SIZE;
+            unsigned int commandSlots = parameters.yDimension * parameters.xDimension * vm::lang::CELL_SIZE;
 
             remainingDirections = parameters.directions;
             remainingOperators = parameters.operators;
@@ -112,8 +112,8 @@ namespace eeagl {
             if (!addCommandsForOperandUntilNonRemaining<vm::lang::Register>(remainingRegisters) || 
                 !addCommandsForOperandUntilNonRemaining<vm::lang::DirectionRegister>(remainingDirectionRegisters) ||
                 !addCommandsForOperandUntilNonRemaining<vm::lang::Direction>(remainingDirections, 
-                    vm::lang::OperandType::TypeReference))
-            {
+                    vm::lang::OperandType::TypeReference)) {
+
                 result.error = GenerateResult::Error::NO_OPERATOR_FOR_OPERAND;
                 return result;
             }

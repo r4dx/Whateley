@@ -17,22 +17,22 @@ namespace eeagl {
 
             template <typename T>
             OperandType OperandToOperandType() {
-                if (std::is_same<T, Register>::value)
+                if constexpr(std::is_same<T, Register>::value)
                     return OperandType::TypeRegister;
 
-                if (std::is_same<T, DirectionRegister>::value)
+                else if constexpr(std::is_same<T, DirectionRegister>::value)
                     return OperandType::TypeDirectionRegister;
 
-                if (std::is_same<T, Reference>::value)
+                else if constexpr(std::is_same<T, Reference>::value)
                     return OperandType::TypeReference;
 
-                if (std::is_same<T, std::byte>::value)
+                else if constexpr(std::is_same<T, std::byte>::value)
                     return OperandType::TypeNumber;
 
-                if (std::is_same<T, CellCommandPointer>::value)
+                else if constexpr(std::is_same<T, CellCommandPointer>::value)
                     return OperandType::TypeCellCommandPointer;
-
-                return OperandType::NonExistent;
+                else
+                    return OperandType::NonExistent;
             };
 
 
