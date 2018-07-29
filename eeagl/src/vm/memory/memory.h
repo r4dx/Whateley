@@ -5,6 +5,7 @@
 #include <string>
 #include <istream>
 #include <ostream>
+#include <tuple>
 #include "vm/lang/command.h"
 #include "memory_dump.h"
 
@@ -21,6 +22,13 @@ namespace eeagl {
             struct MemoryAddress : CellAddress {
                 std::byte index;
                 MemoryAddress(int x, int y, std::byte index) : CellAddress(x, y), index(index) {}
+                MemoryAddress(std::tuple<int, int, std::byte> addr) : CellAddress(std::get<0>(addr), std::get<1>(addr)), index(std::get<2>(addr)) {}
+
+                bool operator==(const MemoryAddress& rhs) const;
+                bool operator!=(const MemoryAddress& rhs) const;
+
+                int toFlatIndex(int dimX, int dimZ) const;
+                static MemoryAddress fromFlatIndex(int index, int dimX, int dimZ);
             };
 
             struct GetCellResult {

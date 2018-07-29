@@ -1,10 +1,14 @@
 #pragma once
-#include <set>
-#include <optional>
 #include "vm/lang/command_structure.h"
 #include "vm/lang/command.h"
 #include "vm/memory/memory_dump.h"
+#include "vm/memory/memory.h"
+
 #include <memory>
+#include <tuple>
+#include <set>
+#include <optional>
+#include <vector>
 
 namespace eeagl {
     namespace generator {
@@ -45,17 +49,19 @@ namespace eeagl {
             std::set<vm::lang::Register> remainingRegisters;
             std::set<vm::lang::DirectionRegister> remainingDirectionRegisters;
             std::vector<vm::lang::RawCommand> commandsToAdd;
+            std::vector<int> unusedIndices;
+            unsigned int commandSlots;
 
             std::optional<vm::lang::RawCommand> getCommandForOperand(vm::lang::OperandType operandType);
             std::optional<vm::lang::Operand> getRandomOperand(vm::lang::OperandType type);
             std::optional<vm::lang::RawCommand> getRandomCommand(vm::lang::CommandStructure structure);
             int getOperatorWeight(vm::lang::Operator op);
             int getOperandWeight(vm::lang::OperandType operandType);
+            vm::memory::MemoryAddress popUnusedCoords();
 
             template <typename T>
-            bool addCommandsForOperandUntilNonRemaining(std::set<T>& set, 
+            bool addCommandsForOperandUntilNonRemaining(std::set<T>& set,
                 std::optional<vm::lang::OperandType> operandType = std::nullopt);
-
         };
     }
 }

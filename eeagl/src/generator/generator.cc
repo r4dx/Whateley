@@ -1,11 +1,12 @@
 #pragma once
 #include "generator.h"
+
 #include <memory>
 #include <random>
 #include <map>
-#include <vector>
 #include <iterator>
 #include <utility>
+#include <numeric>
 
 namespace eeagl {
     namespace generator {
@@ -31,7 +32,6 @@ namespace eeagl {
             return value;
         }
 
-
         template <typename T>
         std::optional<T> getRandom(std::set<T>& remainingSet, const std::set<T>& fullSet) {
             if (remainingSet.size() > 0)
@@ -50,8 +50,6 @@ namespace eeagl {
 
         MemoryDumpGenerator::MemoryDumpGenerator(const GeneratorParameters parameters) : parameters(parameters) { }
 
-
-
         template <typename T>
         bool MemoryDumpGenerator::addCommandsForOperandUntilNonRemaining(std::set<T>& set, 
             std::optional<vm::lang::OperandType> operandType) {
@@ -67,6 +65,12 @@ namespace eeagl {
                 commandsToAdd.push_back(*command);
             }
             return true;
+        }
+
+        vm::memory::MemoryAddress MemoryDumpGenerator::popUnusedCoords() {
+            int flatCoords = unusedIndices[0];
+            unusedIndices.erase(unusedIndices.begin());
+            return vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, vm::lang::CELL_SIZE);
         }
 
         GenerateResult MemoryDumpGenerator::generateRandom() {
@@ -90,7 +94,7 @@ namespace eeagl {
             result.result->cells = std::vector< std::vector < vm::lang::Cell > >(parameters.yDimension, 
                 std::vector<vm::lang::Cell>(parameters.xDimension, vm::lang::Cell()));
 
-            unsigned int commandSlots = parameters.yDimension * parameters.xDimension * vm::lang::CELL_SIZE;
+            commandSlots = parameters.yDimension * parameters.xDimension * vm::lang::CELL_SIZE;
 
             remainingDirections = parameters.directions;
             remainingOperators = parameters.operators;
@@ -123,31 +127,27 @@ namespace eeagl {
                 return result;
             }
 
+            unusedIndices = std::vector<int>(commandSlots);
+            std::iota(unusedIndices.begin(), unusedIndices.end(), 0);
+            std::shuffle(unusedIndices.begin(), unusedIndices.end(), std::mt19937{ std::random_device{}() });
 
-            /*
-                fulfillment algorithm:
+            while (commandsToAdd.size() > 0) {
+                auto coords = popUnusedCoords();
+                vm::lang::RawCommand command = commandsToAdd[0];
+                commandsToAdd.erase(commandsToAdd.begin());
+                result.result->cells[coords.y][coords.x].commands[(int)coords.index] = command;
+            }
 
-                ...
-
-                for (auto command : commands_to_add)
-                    insertIntoRandomPlace(command);
-                    // save places to filter remaining slots
-
-                ...
-
-
-            for each remaining slots:
-                operator = getRandom<Operator, remainingOperators, parameters.operators>();
-                Operand operand1 = getRandomOperand(argument1Type);
-                Operand operand2 = getRandomOperand(argument2Type);
-                Operand operand3 = getRandomOperand(argument3Type);
-
-
-            if (remainingOperators.size() > 0) // same for other "remaining"-prefixed sets
-                return error;
-
-
-            */
+            while (unusedIndices.size() > 0) {
+                auto coords = popUnusedCoords();
+                auto commandOp = *(random<vm::lang::Operator>(parameters.operators));
+                auto commandResult = getRandomCommand(vm::lang::COMMAND_STRUCTURE.at(commandOp));
+                if (!commandResult.has_value()) {
+                    result.error = GenerateResult::Error::NO_OPERAND_FOR_OPERATOR;
+                    return result;
+                }
+                result.result->cells[coords.y][coords.x].commands[(int)coords.index] = *commandResult;
+            }
 
             result.succeed = true;
             return result;

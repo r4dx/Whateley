@@ -1,9 +1,10 @@
 #include "gtest/gtest.h"
 #include "generator/generator.h"
-#include <vector>
-#include <functional>
 #include "vm/lang/command_structure.h"
 #include "vm/lang/command.h"
+
+#include <vector>
+#include <functional>
 
 namespace eeagl {
     namespace generator {
@@ -68,19 +69,24 @@ namespace eeagl {
             int& unusedDirectionRegisters, int& unusedRegisters) {
             switch (operandType) {
             case vm::lang::OperandType::TypeDirectionRegister:
-                unusedDirectionRegisters--;
+                if (unusedDirectionRegisters > 0)
+                    unusedDirectionRegisters--;
                 break;
             case vm::lang::OperandType::TypeRegister:
-                unusedRegisters--;
+                if (unusedRegisters > 0)
+                    unusedRegisters--;
                 break;
             case vm::lang::OperandType::TypeReference:
-                unusedDirections--;
-                unusedRegisters--;
+                if (unusedDirections > 0)
+                    unusedDirections--;
+
+                if (unusedRegisters > 0)
+                    unusedRegisters--;
                 break;
             }
         }
 
-        bool notEnoughSlotsPossible() {
+        bool notEnoughSlotsErrorPossible() {
             int unusedDirections = vm::lang::DIRECTIONS.size();
             int unusedDirectionRegisters = vm::lang::DIRECTION_REGISTERS.size();
             int unusedRegisters = vm::lang::REGISTERS.size();
@@ -94,12 +100,12 @@ namespace eeagl {
             int slots = vm::lang::CELL_SIZE - vm::lang::OPERATORS.size() - 
                 unusedDirectionRegisters - unusedDirections - unusedRegisters;
 
-            return slots > 0;
+            return slots < 0;
         }
 
         TEST_F(MemoryDumpGeneratorTest, NotEnoughSlotsTest) {
 
-            if (!notEnoughSlotsPossible())
+            if (!notEnoughSlotsErrorPossible())
                 return;
 
             GeneratorParameters params = emptyParams();
@@ -130,10 +136,11 @@ namespace eeagl {
         TEST_F(MemoryDumpGeneratorTest, ExpectedOperatorsTest) {
             GeneratorParameters params = emptyParams();
             params.operators = { vm::lang::Operator::Stop, vm::lang::Operator::Increment };
+            params.registers = { vm::lang::Register::Register_1 };
             MemoryDumpGenerator generator(params);
             GenerateResult result = generator.generateRandom();
             ASSERT_TRUE(result.succeed);
-            vm::lang::Cell cell = result.result->cells.at(0).at(0);
+            vm::lang::Cell cell = result.result->cells[0][0];
 
             for (auto command : cell.commands)
                 ASSERT_NE(params.operators.find(command.op), params.operators.end());
