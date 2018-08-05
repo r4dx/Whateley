@@ -48,7 +48,8 @@ namespace eeagl {
             directionRegisters = vm::lang::DIRECTION_REGISTERS;
         }
 
-        MemoryDumpGenerator::MemoryDumpGenerator(const GeneratorParameters parameters) : parameters(parameters) { }
+        MemoryDumpGenerator::MemoryDumpGenerator(const GeneratorParameters parameters) : parameters(parameters), 
+            engine(device()) { }
 
         template <typename T>
         bool MemoryDumpGenerator::addCommandsForOperandUntilNonRemaining(std::set<T>& set, 
@@ -65,12 +66,6 @@ namespace eeagl {
                 commandsToAdd.push_back(*command);
             }
             return true;
-        }
-
-        vm::memory::MemoryAddress MemoryDumpGenerator::popUnusedCoords() {
-            int flatCoords = unusedIndices[0];
-            unusedIndices.erase(unusedIndices.begin());
-            return vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, vm::lang::CELL_SIZE);
         }
 
         GenerateResult MemoryDumpGenerator::generateRandom() {
@@ -127,19 +122,22 @@ namespace eeagl {
                 return result;
             }
 
-            unusedIndices = std::vector<int>(commandSlots);
+            std::vector<int> unusedIndices = std::vector<int>(commandSlots);
             std::iota(unusedIndices.begin(), unusedIndices.end(), 0);
-            std::shuffle(unusedIndices.begin(), unusedIndices.end(), std::mt19937{ std::random_device{}() });
+            std::shuffle(unusedIndices.begin(), unusedIndices.end(), engine);
+            size_t firstUnusedIndex = 0;
 
             while (commandsToAdd.size() > 0) {
-                auto coords = popUnusedCoords();
+                int flatCoords = unusedIndices.at(firstUnusedIndex++);
+                auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, vm::lang::CELL_SIZE);
                 vm::lang::RawCommand command = commandsToAdd[0];
                 commandsToAdd.erase(commandsToAdd.begin());
                 result.result->cells[coords.y][coords.x].commands[(int)coords.index] = command;
             }
 
-            while (unusedIndices.size() > 0) {
-                auto coords = popUnusedCoords();
+            while (firstUnusedIndex < unusedIndices.size()) {
+                int flatCoords = unusedIndices.at(firstUnusedIndex++);
+                auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, vm::lang::CELL_SIZE);
                 auto commandOp = *(random<vm::lang::Operator>(parameters.operators));
                 auto commandResult = getRandomCommand(vm::lang::COMMAND_STRUCTURE.at(commandOp));
                 if (!commandResult.has_value()) {
@@ -172,8 +170,6 @@ namespace eeagl {
             vm::lang::Operand result;
             result.number = (std::byte)0;
 
-            std::random_device device;
-            std::mt19937 engine(device());
             std::uniform_int_distribution<int> pointerUD(0, vm::lang::CELL_SIZE - 1);
             std::uniform_int_distribution<int> numberUD(vm::lang::MIN_NUMBER, vm::lang::MAX_NUMBER - 1);
 

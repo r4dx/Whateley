@@ -7,8 +7,10 @@
 #include <memory>
 #include <tuple>
 #include <set>
-#include <optional>
+#include <map>
 #include <vector>
+#include <optional>
+#include <random>
 
 namespace eeagl {
     namespace generator {
@@ -43,13 +45,16 @@ namespace eeagl {
             GenerateResult generateRandom();
 
         private:
+            std::random_device device;
+            std::mt19937 engine;
+
             const GeneratorParameters parameters;
             std::set<vm::lang::Direction> remainingDirections;
             std::set<vm::lang::Operator> remainingOperators;
             std::set<vm::lang::Register> remainingRegisters;
             std::set<vm::lang::DirectionRegister> remainingDirectionRegisters;
             std::vector<vm::lang::RawCommand> commandsToAdd;
-            std::vector<int> unusedIndices;
+
             unsigned int commandSlots;
 
             std::optional<vm::lang::RawCommand> getCommandForOperand(vm::lang::OperandType operandType);
@@ -57,7 +62,6 @@ namespace eeagl {
             std::optional<vm::lang::RawCommand> getRandomCommand(vm::lang::CommandStructure structure);
             int getOperatorWeight(vm::lang::Operator op);
             int getOperandWeight(vm::lang::OperandType operandType);
-            vm::memory::MemoryAddress popUnusedCoords();
 
             template <typename T>
             bool addCommandsForOperandUntilNonRemaining(std::set<T>& set,
