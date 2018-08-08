@@ -2,10 +2,15 @@
 
 #include <cstddef>
 #include <set>
+#include <cassert>
 
 namespace eeagl {
     namespace vm {
         namespace lang {
+            static const int CELL_SIZE = 40;
+            static const int MIN_NUMBER = 0;
+            static const int MAX_NUMBER = CELL_SIZE;
+
             enum Operator : unsigned char {
                 Set,
                 Increment,
@@ -50,12 +55,17 @@ namespace eeagl {
 
             typedef std::byte CellCommandPointer;
 
+            inline CellCommandPointer toPointer(unsigned char value) {
+                assert(value < CELL_SIZE);
+                return (CellCommandPointer)value;
+            };
+
             enum Direction : unsigned char {
+                Same,
                 Up,
                 Down,
                 Left,
-                Right,
-                Same
+                Right
             };
 
             static const std::set<Direction> DIRECTIONS = {
@@ -85,9 +95,6 @@ namespace eeagl {
                 Operand operand2;
                 Operand operand3;
             };
-            static const int CELL_SIZE = 40;
-            static const int MIN_NUMBER = 0;
-            static const int MAX_NUMBER = CELL_SIZE;
             struct Cell {
                 RawCommand commands[CELL_SIZE];
             };

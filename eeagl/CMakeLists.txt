@@ -19,6 +19,8 @@ include_directories(./lib/cereal-1.2.2/include)
 
 target_sources(eeagl_lib
 PUBLIC 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/exec/execution.h 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/exec/execution.cc 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.h 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.h 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.cc
@@ -61,11 +63,16 @@ add_executable(runUnitTests
     tests/vm/memory/memory_test.cc 
     tests/vm/memory/memory_dump_test.cc 
     tests/vm/memory/memory_dump_test.h
-    tests/vm/simulation_test.cc)
+    tests/vm/simulation_test.cc
+	tests/vm/exec/execution_test.cc)
 
 target_link_libraries(runUnitTests gtest gtest_main)
 target_link_libraries(runUnitTests eeagl_lib)
-target_include_directories(runUnitTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(runUnitTests 
+PRIVATE 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_SOURCE_DIR}/tests
+)
 
 set_property(TARGET eeagl_lib PROPERTY CXX_STANDARD 17)
 set_property(TARGET eeagl_lib PROPERTY CXX_STANDARD_REQUIRED ON)

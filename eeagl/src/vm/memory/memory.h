@@ -20,9 +20,9 @@ namespace eeagl {
             };
 
             struct MemoryAddress : CellAddress {
-                std::byte index;
-                MemoryAddress(int x, int y, std::byte index) : CellAddress(x, y), index(index) {}
-                MemoryAddress(std::tuple<int, int, std::byte> addr) : CellAddress(std::get<0>(addr), std::get<1>(addr)), index(std::get<2>(addr)) {}
+                lang::CellCommandPointer index;
+                MemoryAddress(int x, int y, lang::CellCommandPointer index) : CellAddress(x, y), index(index) {}
+                MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr) : CellAddress(std::get<0>(addr), std::get<1>(addr)), index(std::get<2>(addr)) {}
 
                 bool operator==(const MemoryAddress& rhs) const;
                 bool operator!=(const MemoryAddress& rhs) const;
