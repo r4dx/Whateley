@@ -11,7 +11,7 @@ namespace eeagl {
             static const int MIN_NUMBER = 0;
             static const int MAX_NUMBER = CELL_SIZE;
 
-            enum Operator : unsigned char {
+            enum Operator : char {
                 Set,
                 Increment,
                 JumpIfEqualsRef,
@@ -33,7 +33,7 @@ namespace eeagl {
                 Operator::Stop,
             };
 
-            enum Register : unsigned char {
+            enum Register : char {
                 Register_1,
                 Register_2,
                 Register_3,
@@ -45,7 +45,7 @@ namespace eeagl {
                 Register::Register_3
             };
 
-            enum DirectionRegister : unsigned char {
+            enum DirectionRegister : char {
                 Directional_Register_1
             };
 
@@ -55,12 +55,12 @@ namespace eeagl {
 
             typedef std::byte CellCommandPointer;
 
-            inline CellCommandPointer toPointer(unsigned char value) {
-                assert(value < CELL_SIZE);
+            inline CellCommandPointer toPointer(char value) {
+                assert(value < CELL_SIZE && value >= 0);
                 return (CellCommandPointer)value;
             };
 
-            enum Direction : unsigned char {
+            enum Direction : char {
                 Same,
                 Up,
                 Down,

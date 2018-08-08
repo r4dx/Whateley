@@ -14,7 +14,6 @@ namespace eeagl {
         namespace memory {
 
             std::shared_ptr<MemoryDump> MemoryDumpTest::createSimpleMemoryDump() {
-
                 auto cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
                 MemoryDump dump = { { MemoryDumpHeader::SIGNATURE, MemoryDumpHeader::CURRENT_VERSION }, cells };
                 return std::make_shared<MemoryDump>(dump);
