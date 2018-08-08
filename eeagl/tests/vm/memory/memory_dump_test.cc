@@ -14,15 +14,10 @@ namespace eeagl {
         namespace memory {
 
             std::shared_ptr<MemoryDump> MemoryDumpTest::createSimpleMemoryDump() {
-                std::stringstream ss;
-                {
-                    cereal::PortableBinaryOutputArchive oarchive(ss);
-                    auto cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
-                    MemoryDump dump = { { MemoryDumpHeader::SIGNATURE, MemoryDumpHeader::CURRENT_VERSION }, cells };
-                    oarchive(dump);
-                }
-                ReadDumpResult result = MemoryDump::read(ss);
-                return result.result;
+
+                auto cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
+                MemoryDump dump = { { MemoryDumpHeader::SIGNATURE, MemoryDumpHeader::CURRENT_VERSION }, cells };
+                return std::make_shared<MemoryDump>(dump);
             }
 
             std::shared_ptr<std::istream> MemoryDumpTest::createUnderlyingStream(
