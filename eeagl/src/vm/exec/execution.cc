@@ -11,4 +11,103 @@ namespace eeagl::vm::exec {
         for (auto dirReg : lang::DIRECTION_REGISTERS)
             directionRegisters[dirReg] = lang::Direction::Same;
     }
+
+    template<lang::Operator OP>
+    void Executioner::bindExecute() {
+        bindings[OP] = std::bind(&Executioner::execute<OP>, this, std::placeholders::_1);
+    }
+
+    Executioner::Executioner(Context& context) : 
+        context(context) {
+        bindExecute<lang::Operator::Increment>();
+        bindExecute<lang::Operator::Jump>();
+        bindExecute<lang::Operator::JumpIfEqualsRef>();
+        bindExecute<lang::Operator::JumpIfEqualsReg>();
+        bindExecute<lang::Operator::Set>();
+        bindExecute<lang::Operator::SetRandomDirection>();
+        bindExecute<lang::Operator::Stop>();
+        bindExecute<lang::Operator::SwapIfEquals>();
+    }
+
+    template <lang::Operator Operator>
+    Executioner::ExecutionResult Executioner::execute(const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = false;
+        result.error = Executioner::ExecutionResult::Error::UNKNOWN_OPERATOR;
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::Increment>(const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+
+        context.registers[command.operand1.reg] = 
+            lang::toPointer((int)context.registers[command.operand1.reg] + 1);
+
+        context.ip++;
+
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::Jump>(const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsRef>(const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsReg>(
+        const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::Set>(
+        const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::SetRandomDirection>(
+        const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::Stop>(const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+        return result;
+    }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapIfEquals>(const lang::RawCommand& command) {
+        Executioner::ExecutionResult result;
+        result.success = true;
+        return result;
+    }
+
+    Executioner::ExecutionResult Executioner::execute(const lang::RawCommand& command) {
+        if (bindings.find(command.op) == bindings.end())
+            return { false, Executioner::ExecutionResult::Error::UNKNOWN_OPERATOR };
+
+        auto result = bindings[command.op](command);
+
+        return result;
+    }
 }
