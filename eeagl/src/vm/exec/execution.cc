@@ -45,7 +45,7 @@ namespace eeagl::vm::exec {
         context.registers[command.operand1.reg] = 
             lang::toPointer((int)context.registers[command.operand1.reg] + 1);
 
-        context.ip++;
+        context.memory.incrementAddress(context.ip);
 
         return result;
     }

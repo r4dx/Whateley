@@ -22,6 +22,19 @@ namespace eeagl::vm::memory {
         return MemoryAddress( x, y, std::byte(z));
     }
 
+    void Memory::incrementAddress(MemoryAddress& address) const {
+        if ((int)address.index + 1 < lang::CELL_SIZE)
+            address.index = lang::toPointer((int)address.index + 1);
+        else {
+            address.index = lang::toPointer(0);
+
+            if (++address.x >= dump->cells[0].size()) {
+                address.x = 0;
+                if (++address.y >= dump->cells.size())
+                    address.y = 0;
+            }
+        }
+    }
 
     SetMemoryResult Memory::set(MemoryAddress, lang::RawCommand command) {
         SetMemoryResult result;

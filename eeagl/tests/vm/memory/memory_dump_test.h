@@ -7,7 +7,7 @@
 namespace eeagl::vm::memory {
     class MemoryDumpTest : public ::testing::Test {
     public:
-        static std::shared_ptr<MemoryDump> createSimpleMemoryDump();
+        static std::shared_ptr<MemoryDump> createSimpleMemoryDump(int x = 1, int y = 1);
     protected:
         std::shared_ptr<std::istream> createUnderlyingStream(
             const std::string signature = MemoryDumpHeader::SIGNATURE,

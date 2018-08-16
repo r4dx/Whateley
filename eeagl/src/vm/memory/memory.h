@@ -44,6 +44,7 @@ namespace eeagl::vm::memory {
     public:
         GetCellResult get(const CellAddress& address) const;
         Memory(const std::shared_ptr<MemoryDump> dump);
+        void incrementAddress(MemoryAddress& address) const;
     protected:
         SetMemoryResult set(MemoryAddress, lang::RawCommand command);
     private:

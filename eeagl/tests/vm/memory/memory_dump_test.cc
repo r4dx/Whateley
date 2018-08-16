@@ -10,8 +10,8 @@
 #include <cereal/archives/portable_binary.hpp>
 
 namespace eeagl::vm::memory {
-    std::shared_ptr<MemoryDump> MemoryDumpTest::createSimpleMemoryDump() {
-        auto cells = std::vector< std::vector <lang::Cell> >(1, std::vector <lang::Cell>(1, lang::Cell()));
+    std::shared_ptr<MemoryDump> MemoryDumpTest::createSimpleMemoryDump(int x, int y) {
+        auto cells = std::vector< std::vector <lang::Cell> >(y, std::vector <lang::Cell>(x, lang::Cell()));
         MemoryDump dump = { { MemoryDumpHeader::SIGNATURE, MemoryDumpHeader::CURRENT_VERSION }, cells };
         return std::make_shared<MemoryDump>(dump);
     }
@@ -22,8 +22,8 @@ namespace eeagl::vm::memory {
         int xDimension,
         int yDimension) {
 
-        std::vector < std::vector <lang::Cell> > cells(xDimension,
-            std::vector<lang::Cell>(yDimension, lang::Cell()));
+        std::vector < std::vector <lang::Cell> > cells(yDimension,
+            std::vector<lang::Cell>(xDimension, lang::Cell()));
 
         MemoryDump dump = { { signature, version }, cells };
         std::shared_ptr<std::stringstream> ss = std::make_shared<std::stringstream>();

@@ -69,6 +69,38 @@ namespace eeagl::vm::memory {
         EXPECT_EQ(MemoryAddress(2, 3, (std::byte)0), addr);
     }
 
+    TEST_F(MemoryTest, IncrementAddressSimple) {
+        MemoryAddress address(0, 0, lang::toPointer(0));
+        memory->incrementAddress(address);
+        EXPECT_EQ(address, MemoryAddress(0, 0, lang::toPointer(1)));
+    }
+
+    TEST_F(MemoryTest, IncrementAddressMoreThanCellSize) {
+        MemoryAddress address(0, 0, lang::toPointer(lang::CELL_SIZE - 1));
+        auto dump = MemoryDumpTest::createSimpleMemoryDump(2, 1);
+        memory = std::make_shared<Memory>(dump);
+
+        memory->incrementAddress(address);
+        EXPECT_EQ(address, MemoryAddress(1, 0, lang::toPointer(0)));
+    }
+
+    TEST_F(MemoryTest, IncrementAddressMoreThanCellSizeAndLastInARow) {
+        MemoryAddress address(1, 0, lang::toPointer(lang::CELL_SIZE - 1));
+        auto dump = MemoryDumpTest::createSimpleMemoryDump(2, 2);
+        memory = std::make_shared<Memory>(dump);
+
+        memory->incrementAddress(address);
+        EXPECT_EQ(address, MemoryAddress(0, 1, lang::toPointer(0)));
+    }
+
+    TEST_F(MemoryTest, IncrementAddressGoesBackWhenLastEntry) {
+        MemoryAddress address(1, 1, lang::toPointer(lang::CELL_SIZE - 1));
+        auto dump = MemoryDumpTest::createSimpleMemoryDump(2, 2);
+        memory = std::make_shared<Memory>(dump);
+
+        memory->incrementAddress(address);
+        EXPECT_EQ(address, MemoryAddress(0, 0, lang::toPointer(0)));
+    }
 
     TEST_F(MemoryTest, InvalidAddressOnNegativeGet) {
         CellAddress address(-1, -1);
