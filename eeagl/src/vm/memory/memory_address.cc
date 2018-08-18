@@ -1,6 +1,27 @@
 #include "memory_address.h"
+#include <cassert>
 
 namespace eeagl::vm::memory {
+	CellAddress::CellAddress(int x, int y) : x(x), y(y) {
+		assert(x >= 0 && y >= 0);
+	}
+
+	MemoryAddress::MemoryAddress(int x, int y, lang::CellCommandPointer index, int dimX, int dimY, int dimZ) :
+		CellAddress(x, y),
+		index(index),
+		dimX(dimX),
+		dimY(dimY),
+		dimZ(dimZ) {
+	
+		assert(dimX > 0 && dimY > 0 && dimZ > 0);
+	}
+
+	MemoryAddress::MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr, std::tuple<int, int, int> dimensions) :
+		MemoryAddress(std::get<0>(addr), std::get<1>(addr), std::get<2>(addr), 
+		std::get<0>(dimensions),
+		std::get<1>(dimensions),
+		std::get<2>(dimensions)) { }
+
 	bool MemoryAddress::operator==(const MemoryAddress& rhs) const {
 		return x == rhs.x && y == rhs.y && index == rhs.index;
 	}
