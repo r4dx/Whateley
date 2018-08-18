@@ -23,13 +23,13 @@ namespace eeagl::vm::exec {
     }
 
     TEST_F(ExecutionTest, ContextContainsAllDirectionRegisters) {
-        Context context(*memory, memory::MemoryAddress(0, 0, lang::toPointer(0), 1, 1, 1));
+        Context context(*memory, memory->toAddress(0, 0, lang::toPointer(0)));
         mapContainsAllElementsOfSet<lang::DirectionRegister, lang::Direction>(
             lang::DIRECTION_REGISTERS, context.directionRegisters);
     }
 
     TEST_F(ExecutionTest, ContextContainsAllRegisters) {
-        Context context(*memory, memory::MemoryAddress(0, 0, lang::toPointer(0), 1, 1, 1));
+        Context context(*memory, memory->toAddress(0, 0, lang::toPointer(0)));
         mapContainsAllElementsOfSet<lang::Register, lang::CellCommandPointer>(lang::REGISTERS, context.registers);
     }
 }

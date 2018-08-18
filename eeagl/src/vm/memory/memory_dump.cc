@@ -4,7 +4,11 @@
 namespace eeagl::vm::memory {
     const std::string MemoryDumpHeader::SIGNATURE = "EEAGL";
 
-    ReadDumpResult MemoryDump::read(std::istream& is) {
+	MemoryAddress MemoryDump::toAddress(int x, int y, lang::CellCommandPointer index) const {
+		return MemoryAddress(x, y, index, cells[0].size(), cells.size(), lang::CELL_SIZE);
+	}
+
+	ReadDumpResult MemoryDump::read(std::istream& is) {
         ReadDumpResult result;
         result.succeed = false;
         result.result = std::make_shared<MemoryDump>();

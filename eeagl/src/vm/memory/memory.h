@@ -25,6 +25,7 @@ namespace eeagl::vm::memory {
     class Memory {
     public:
         GetCellResult get(const CellAddress& address) const;
+		MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
         Memory(const std::shared_ptr<MemoryDump> dump);
     protected:
         SetMemoryResult set(MemoryAddress, lang::RawCommand command);
