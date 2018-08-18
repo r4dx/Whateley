@@ -19,14 +19,28 @@ namespace eeagl::vm::memory {
 
     struct MemoryAddress : CellAddress {
         lang::CellCommandPointer index;
-        MemoryAddress(int x, int y, lang::CellCommandPointer index) : CellAddress(x, y), index(index) {}
-        MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr) : CellAddress(std::get<0>(addr), std::get<1>(addr)), index(std::get<2>(addr)) {}
+        MemoryAddress(int x, int y, lang::CellCommandPointer index, int dimX, int dimY, int dimZ) : 
+			CellAddress(x, y), 
+			index(index),
+			dimX(dimX),
+			dimY(dimY),
+			dimZ(dimZ) {}
+        MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr, std::tuple<int, int, int> dimensions) : 
+			CellAddress(std::get<0>(addr), std::get<1>(addr)), index(std::get<2>(addr)),
+				dimX(std::get<0>(dimensions)),
+				dimY(std::get<1>(dimensions)),
+				dimZ(std::get<2>(dimensions)) {}
 
         bool operator==(const MemoryAddress& rhs) const;
         bool operator!=(const MemoryAddress& rhs) const;
+		MemoryAddress& operator++();
 
-        int toFlatIndex(int dimX, int dimZ) const;
-        static MemoryAddress fromFlatIndex(int index, int dimX, int dimZ);
+        int toFlatIndex() const;
+        static MemoryAddress fromFlatIndex(int index, int dimX, int dimY, int dimZ);
+	private:
+		int dimX;
+		int dimY;
+		int dimZ;
     };
 
     struct GetCellResult {
@@ -44,7 +58,6 @@ namespace eeagl::vm::memory {
     public:
         GetCellResult get(const CellAddress& address) const;
         Memory(const std::shared_ptr<MemoryDump> dump);
-        void incrementAddress(MemoryAddress& address) const;
     protected:
         SetMemoryResult set(MemoryAddress, lang::RawCommand command);
     private:

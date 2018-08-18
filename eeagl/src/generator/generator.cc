@@ -127,7 +127,8 @@ namespace eeagl::generator {
 
         while (commandsToAdd.size() > 0) {
             int flatCoords = unusedIndices.at(firstUnusedIndex++);
-            auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, vm::lang::CELL_SIZE);
+            auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, 
+				parameters.yDimension, vm::lang::CELL_SIZE);
             vm::lang::RawCommand command = commandsToAdd[0];
             commandsToAdd.erase(commandsToAdd.begin());
             result.result->cells[coords.y][coords.x].commands[(int)coords.index] = command;
@@ -135,7 +136,8 @@ namespace eeagl::generator {
 
         while (firstUnusedIndex < unusedIndices.size()) {
             int flatCoords = unusedIndices.at(firstUnusedIndex++);
-            auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, vm::lang::CELL_SIZE);
+            auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, 
+				parameters.yDimension, vm::lang::CELL_SIZE);
             auto commandOp = *(random<vm::lang::Operator>(parameters.operators));
             auto commandResult = getRandomCommand(vm::lang::COMMAND_STRUCTURE.at(commandOp));
             if (!commandResult.has_value()) {

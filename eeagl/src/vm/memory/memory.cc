@@ -10,30 +10,31 @@ namespace eeagl::vm::memory {
         return !operator==(rhs);
     }
 
-    int MemoryAddress::toFlatIndex(int dimX, int dimZ) const {
+	MemoryAddress& MemoryAddress::operator++() {
+		if ((int)index + 1 < dimZ)
+			index = lang::toPointer((int)index + 1);
+		else {
+			index = lang::toPointer(0);
+
+			if (++x >= dimX) {
+				x = 0;
+				if (++y >= dimY)
+					y = 0;
+			}
+		}
+		return *this;
+	}
+
+    int MemoryAddress::toFlatIndex() const {
         return y * dimZ * dimX + x * dimZ + (int)index;
     }
 
-    MemoryAddress MemoryAddress::fromFlatIndex(int index, int dimX, int dimZ) {
+    MemoryAddress MemoryAddress::fromFlatIndex(int index, int dimX, int dimY, int dimZ) {
         int y = index / (dimZ * dimX);
         int x = (index - y * dimZ * dimX) / dimZ;
         int z = index - y * dimZ * dimX - x * dimZ;
 
-        return MemoryAddress( x, y, std::byte(z));
-    }
-
-    void Memory::incrementAddress(MemoryAddress& address) const {
-        if ((int)address.index + 1 < lang::CELL_SIZE)
-            address.index = lang::toPointer((int)address.index + 1);
-        else {
-            address.index = lang::toPointer(0);
-
-            if (++address.x >= dump->cells[0].size()) {
-                address.x = 0;
-                if (++address.y >= dump->cells.size())
-                    address.y = 0;
-            }
-        }
+        return MemoryAddress(x, y, std::byte(z), dimX, dimY, dimZ);
     }
 
     SetMemoryResult Memory::set(MemoryAddress, lang::RawCommand command) {
@@ -43,7 +44,7 @@ namespace eeagl::vm::memory {
         return result;
     }
 
-    GetCellResult Memory::get(const CellAddress& address) const {
+	GetCellResult Memory::get(const CellAddress& address) const {
         GetCellResult result;
         result.succeed = false;
         result.error = GetCellResult::Error::INVALID_ADDRESS;
