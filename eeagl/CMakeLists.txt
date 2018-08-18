@@ -22,7 +22,9 @@ PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/exec/execution.h 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/exec/execution.cc 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.h 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.h 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_address.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_address.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.cc 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command.h
@@ -60,7 +62,8 @@ endif()
 enable_testing()
 add_executable(runUnitTests 
 	tests/generator/generator_test.cc
-    tests/vm/memory/memory_test.cc 
+    tests/vm/memory/memory_test.cc
+	tests/vm/memory/memory_address_test.cc
     tests/vm/memory/memory_dump_test.cc 
     tests/vm/memory/memory_dump_test.h
     tests/vm/simulation_test.cc
