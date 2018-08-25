@@ -42,11 +42,13 @@ namespace eeagl::vm::exec {
         Executioner::ExecutionResult result;
         result.success = true;
 
-        context.registers[command.operand1.reg] = 
-            lang::toPointer((int)context.registers[command.operand1.reg] + 1);
+        char value = (char)context.registers[command.operand1.reg];
+        value++;
+        if (value >= lang::CELL_SIZE)
+            value = 0;
 
+        context.registers[command.operand1.reg] = lang::toPointer(value);
         ++context.ip;
-
         return result;
     }
 

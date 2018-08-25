@@ -11,8 +11,12 @@ namespace eeagl::vm::exec {
         virtual void SetUp() override {
             auto dump = memory::MemoryDumpTest::createSimpleMemoryDump();
             memory = std::make_shared<memory::Memory>(dump);
+            context = std::make_shared<Context>(*memory, memory->toAddress(0, 0, lang::toPointer(0)));
+            executioner = std::make_shared<Executioner>(*context);
         }
         std::shared_ptr<memory::Memory> memory;
+        std::shared_ptr<Context> context;
+        std::shared_ptr<Executioner> executioner;
     };
 
     template <typename K, typename V>
@@ -23,13 +27,39 @@ namespace eeagl::vm::exec {
     }
 
     TEST_F(ExecutionTest, ContextContainsAllDirectionRegisters) {
-        Context context(*memory, memory->toAddress(0, 0, lang::toPointer(0)));
         mapContainsAllElementsOfSet<lang::DirectionRegister, lang::Direction>(
-            lang::DIRECTION_REGISTERS, context.directionRegisters);
+            lang::DIRECTION_REGISTERS, context->directionRegisters);
     }
 
     TEST_F(ExecutionTest, ContextContainsAllRegisters) {
-        Context context(*memory, memory->toAddress(0, 0, lang::toPointer(0)));
-        mapContainsAllElementsOfSet<lang::Register, lang::CellCommandPointer>(lang::REGISTERS, context.registers);
+        mapContainsAllElementsOfSet<lang::Register, lang::CellCommandPointer>(
+            lang::REGISTERS, context->registers);
+    }
+
+    lang::RawCommand constructCommand(lang::Operator op, lang::Register operand1Register) {
+        lang::RawCommand command;
+        command.op = op;
+        command.operand1.reg = operand1Register;
+        return command;
+    }
+
+    TEST_F(ExecutionTest, InrementSimple) {
+        auto reg = lang::Register::Register_1;
+        context->registers[reg] = lang::toPointer(0);
+        executioner->execute(constructCommand(lang::Operator::Increment, reg));
+        EXPECT_EQ(context->registers[reg], lang::toPointer(1));
+    }
+
+    TEST_F(ExecutionTest, InrementToCellSizeResultsInZero) {
+        auto reg = lang::Register::Register_1;
+        context->registers[reg] = lang::toPointer(lang::CELL_SIZE - 1);
+        executioner->execute(constructCommand(lang::Operator::Increment, reg));
+        EXPECT_EQ(context->registers[reg], lang::toPointer(0));
+    }
+
+    TEST_F(ExecutionTest, InrementAddsToContextInstructionPointer) {
+        EXPECT_EQ(context->ip.index, lang::toPointer(0));
+        executioner->execute(constructCommand(lang::Operator::Increment, lang::Register::Register_1));
+        EXPECT_EQ(context->ip.index, lang::toPointer(1));
     }
 }
