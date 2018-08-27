@@ -43,6 +43,13 @@ namespace eeagl::vm::exec {
         return command;
     }
 
+    lang::RawCommand constructCommand(lang::Operator op, lang::CellCommandPointer operand1CellPointer) {
+        lang::RawCommand command;
+        command.op = op;
+        command.operand1.cellCommandPointer = operand1CellPointer;
+        return command;
+    }
+
     TEST_F(ExecutionTest, InrementSimple) {
         auto reg = lang::Register::Register_1;
         context->registers[reg] = lang::toPointer(0);
@@ -52,14 +59,44 @@ namespace eeagl::vm::exec {
 
     TEST_F(ExecutionTest, InrementToCellSizeResultsInZero) {
         auto reg = lang::Register::Register_1;
-        context->registers[reg] = lang::toPointer(lang::CELL_SIZE - 1);
+        context->registers[reg] = lang::toPointer(lang::CELL_SIZE - 2);
         executioner->execute(constructCommand(lang::Operator::Increment, reg));
         EXPECT_EQ(context->registers[reg], lang::toPointer(0));
     }
 
     TEST_F(ExecutionTest, InrementAddsToContextInstructionPointer) {
         EXPECT_EQ(context->ip.index, lang::toPointer(0));
-        executioner->execute(constructCommand(lang::Operator::Increment, lang::Register::Register_1));
+        auto result = executioner->execute(constructCommand(lang::Operator::Increment, lang::Register::Register_1));
+        EXPECT_TRUE(result.success);
         EXPECT_EQ(context->ip.index, lang::toPointer(1));
+    }
+
+    TEST_F(ExecutionTest, JumpToInvalidGreaterAddress) {
+        auto expected = context->ip;
+        auto result = executioner->execute(constructCommand(lang::Operator::Jump, 
+            (lang::CellCommandPointer)lang::CELL_SIZE));
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
+        EXPECT_EQ(expected, context->ip);
+    }
+
+    TEST_F(ExecutionTest, JumpToInvalidNegativeAddress) {
+        auto expected = context->ip;
+        auto result = executioner->execute(constructCommand(lang::Operator::Jump,
+            (lang::CellCommandPointer)-1));
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
+        EXPECT_EQ(expected, context->ip);
+    }
+
+    TEST_F(ExecutionTest, JumpToCorrectAddress) {
+        auto ipBeforeTheCall = context->ip;
+        auto jumpPosition = lang::toPointer(lang::CELL_SIZE - 2);
+
+        auto result = executioner->execute(constructCommand(lang::Operator::Jump, jumpPosition));
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
+        EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
+        EXPECT_EQ(context->ip.index, jumpPosition);
     }
 }

@@ -31,77 +31,62 @@ namespace eeagl::vm::exec {
 
     template <lang::Operator Operator>
     Executioner::ExecutionResult Executioner::execute(const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = false;
-        result.error = Executioner::ExecutionResult::Error::UNKNOWN_OPERATOR;
-        return result;
+        return { false, Executioner::ExecutionResult::Error::UNKNOWN_OPERATOR };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Increment>(const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-
         char value = (char)context.registers[command.operand1.reg];
         value++;
-        if (value >= lang::CELL_SIZE)
+        if (value >= lang::CELL_SIZE - 1)
             value = 0;
 
         context.registers[command.operand1.reg] = lang::toPointer(value);
         ++context.ip;
-        return result;
+        return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Jump>(const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-        return result;
+        if (command.operand1.cellCommandPointer >= lang::toPointer(lang::CELL_SIZE - 1))
+            return { false, ExecutionResult::Error::INVALID_ADDRESS };
+
+        context.ip.index = command.operand1.cellCommandPointer;
+
+        return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsRef>(const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-        return result;
+        return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsReg>(
         const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-        return result;
+        return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Set>(
         const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-        return result;
+        return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SetRandomDirection>(
         const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-        return result;
+        return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Stop>(const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-        return result;
+        return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapIfEquals>(const lang::RawCommand& command) {
-        Executioner::ExecutionResult result;
-        result.success = true;
-        return result;
+        return { true };
     }
 
     Executioner::ExecutionResult Executioner::execute(const lang::RawCommand& command) {

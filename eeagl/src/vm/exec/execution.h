@@ -22,6 +22,7 @@ namespace eeagl::vm::exec {
         struct ExecutionResult {
             bool success;
             enum Error {
+                INVALID_ADDRESS,
                 UNKNOWN_OPERATOR
             } error;
         };
