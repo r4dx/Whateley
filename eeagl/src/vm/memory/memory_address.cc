@@ -2,18 +2,15 @@
 #include <cassert>
 
 namespace eeagl::vm::memory {
-	CellAddress::CellAddress(int x, int y) : x(x), y(y) {
-		assert(x >= 0 && y >= 0);
-	}
-
 	MemoryAddress::MemoryAddress(int x, int y, lang::CellCommandPointer index, int dimX, int dimY, int dimZ) :
-		CellAddress(x, y),
+		x(x),
+        y(y),
 		index(index),
 		dimX(dimX),
 		dimY(dimY),
 		dimZ(dimZ) {
-	
-		assert(dimX > 0 && dimY > 0 && dimZ > 0);
+
+		assert(x >= 0 && y >= 0 && dimX > 0 && dimY > 0 && dimZ > 0);
 	}
 
 	MemoryAddress::MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr, std::tuple<int, int, int> dimensions) :
@@ -44,7 +41,31 @@ namespace eeagl::vm::memory {
 		return *this;
 	}
 
-	int MemoryAddress::toFlatIndex() const {
+    int rotator(int value, int max) {
+        if (value < 0)
+            return max - 1;
+        if (value >= max)
+            return 0;
+        return value;
+    }
+
+    MemoryAddress MemoryAddress::neighborCell(const lang::Direction direction) const {
+        switch (direction)
+        {
+        case lang::Direction::Up:
+            return MemoryAddress(x, rotator(y - 1, dimY), lang::toPointer(0), dimX, dimY, dimZ);
+        case lang::Direction::Right:
+            return MemoryAddress(rotator(x + 1, dimX), y, lang::toPointer(0), dimX, dimY, dimZ);
+        case lang::Direction::Left:
+            return MemoryAddress(rotator(x - 1, dimX), y, lang::toPointer(0), dimX, dimY, dimZ);
+        case lang::Direction::Down:
+            return MemoryAddress(x, rotator(y + 1, dimY), lang::toPointer(0), dimX, dimY, dimZ);
+        case lang::Direction::Same:
+            return MemoryAddress(x, y, lang::toPointer(0), dimX, dimY, dimZ);
+        }
+    }
+
+    int MemoryAddress::toFlatIndex() const {
 		return y * dimZ * dimX + x * dimZ + (int)index;
 	}
 

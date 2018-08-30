@@ -38,7 +38,7 @@ namespace eeagl::vm::exec {
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Increment>(const lang::RawCommand& command) {
         char value = (char)context.registers[command.operand1.reg];
         value++;
-        if (value >= lang::CELL_SIZE - 1)
+        if (value > (char)lang::MAX_CELL_INDEX)
             value = 0;
 
         context.registers[command.operand1.reg] = lang::toPointer(value);
@@ -48,7 +48,7 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Jump>(const lang::RawCommand& command) {
-        if (command.operand1.cellCommandPointer >= lang::toPointer(lang::CELL_SIZE - 1))
+        if (command.operand1.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
 
         context.ip.index = command.operand1.cellCommandPointer;
@@ -56,8 +56,31 @@ namespace eeagl::vm::exec {
         return { true };
     }
 
+    memory::MemoryAddress Executioner::getAddress(lang::Reference reference) {
+        auto cell = context.ip.neighborCell(reference.direction);
+        return context.memory.toAddress(cell.x, cell.y, context.registers[reference.reg]);
+    }
+
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsRef>(const lang::RawCommand& command) {
+        /*
+        if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
+            return { false, ExecutionResult::Error::INVALID_ADDRESS };
+
+        
+        auto dereferenceResult = context.memory.dereference(getAddress(command.operand1.reference));
+        if (!dereferenceResult.succeed)
+            return { false, ExecutionResult::Error::DEREFERENCE_ERROR };
+        auto op1Value = dereferenceResult.value;
+
+        dereferenceResult = context.memory.dereference(getAddress(command.operand2.reference));
+        if (!dereferenceResult.succeed)
+            return { false, ExecutionResult::Error::DEREFERENCE_ERROR };
+        auto op2Value = dereferenceResult.value;
+
+        if (op1Value == op2Value)
+            context.ip.index = command.operand3.cellCommandPointer;
+        */
         return { true };
     }
 

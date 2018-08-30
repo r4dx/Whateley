@@ -5,16 +5,12 @@
 #include <tuple>
 
 namespace eeagl::vm::memory {
-	struct CellAddress {
-		int x;
-		int y;
 
-		CellAddress(int x, int y);
-	};
-
-	class MemoryAddress : public CellAddress {
+    class MemoryAddress {
 	public:
-		lang::CellCommandPointer index;
+        int x;
+        int y;
+        lang::CellCommandPointer index;
 
 		MemoryAddress(int x, int y, lang::CellCommandPointer index, int dimX, int dimY, int dimZ);
 		MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr, std::tuple<int, int, int> dimensions);
@@ -23,9 +19,11 @@ namespace eeagl::vm::memory {
 		bool operator!=(const MemoryAddress& rhs) const;
 		MemoryAddress& operator++();
 
+        MemoryAddress neighborCell(const lang::Direction direction) const;
 		int toFlatIndex() const;
 		static MemoryAddress fromFlatIndex(int index, int dimX, int dimY, int dimZ);
 	private:
+
 		int dimX;
 		int dimY;
 		int dimZ;

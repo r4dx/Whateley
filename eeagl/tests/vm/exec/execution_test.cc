@@ -59,7 +59,7 @@ namespace eeagl::vm::exec {
 
     TEST_F(ExecutionTest, InrementToCellSizeResultsInZero) {
         auto reg = lang::Register::Register_1;
-        context->registers[reg] = lang::toPointer(lang::CELL_SIZE - 2);
+        context->registers[reg] = lang::MAX_CELL_INDEX;
         executioner->execute(constructCommand(lang::Operator::Increment, reg));
         EXPECT_EQ(context->registers[reg], lang::toPointer(0));
     }
@@ -91,7 +91,7 @@ namespace eeagl::vm::exec {
 
     TEST_F(ExecutionTest, JumpToCorrectAddress) {
         auto ipBeforeTheCall = context->ip;
-        auto jumpPosition = lang::toPointer(lang::CELL_SIZE - 2);
+        auto jumpPosition = lang::MAX_CELL_INDEX;
 
         auto result = executioner->execute(constructCommand(lang::Operator::Jump, jumpPosition));
         EXPECT_TRUE(result.success);

@@ -23,8 +23,10 @@ namespace eeagl::vm::exec {
             bool success;
             enum Error {
                 INVALID_ADDRESS,
-                UNKNOWN_OPERATOR
+                UNKNOWN_OPERATOR,
+                DEREFERENCE_ERROR
             } error;
+
         };
 
         Executioner(Context& context);
@@ -35,6 +37,8 @@ namespace eeagl::vm::exec {
         Context& context;
 
         std::unordered_map<lang::Operator, std::function<ExecutionResult(const lang::RawCommand&)>> bindings;
+
+        memory::MemoryAddress getAddress(lang::Reference reference);
 
         template<lang::Operator OP>
         void bindExecute();

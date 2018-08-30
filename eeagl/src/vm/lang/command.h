@@ -7,7 +7,7 @@
 namespace eeagl::vm::lang {
     static const int CELL_SIZE = 40;
     static const int MIN_NUMBER = 0;
-    static const int MAX_NUMBER = CELL_SIZE;
+    static const int MAX_NUMBER = CELL_SIZE - 1;
 
     enum Operator : char {
         Set,
@@ -58,6 +58,8 @@ namespace eeagl::vm::lang {
         return (CellCommandPointer)value;
     };
 
+    static const CellCommandPointer MAX_CELL_INDEX = toPointer(CELL_SIZE - 1);
+
     enum Direction : char {
         Same,
         Up,
@@ -92,6 +94,9 @@ namespace eeagl::vm::lang {
         Operand operand1;
         Operand operand2;
         Operand operand3;
+
+        //bool operator==(const RawCommand& rhs) const;
+        //bool operator!=(const RawCommand& rhs) const;
     };
     struct Cell {
         RawCommand commands[CELL_SIZE];

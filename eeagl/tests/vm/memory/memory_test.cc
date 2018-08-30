@@ -21,10 +21,4 @@ namespace eeagl::vm::memory {
         }
         std::shared_ptr<Memory> memory;
     };
-
-    TEST_F(MemoryTest, InvalidAddressOnNegativeGet) {
-        CellAddress address(2, 2);
-        GetCellResult result = memory->get(address);
-        EXPECT_EQ(GetCellResult::Error::INVALID_ADDRESS, result.error);
-    }
 }

@@ -61,7 +61,7 @@ namespace eeagl::vm::memory {
 		int dimX = 2;
 		int dimY = 1;
 		int dimZ = lang::CELL_SIZE;
-		MemoryAddress address(0, 0, lang::toPointer(lang::CELL_SIZE - 1), dimX, dimY, dimZ);
+		MemoryAddress address(0, 0, lang::MAX_CELL_INDEX, dimX, dimY, dimZ);
 		++address;
 		EXPECT_EQ(address, MemoryAddress(1, 0, lang::toPointer(0), dimX, dimY, dimZ));
 	}
@@ -81,8 +81,42 @@ namespace eeagl::vm::memory {
 		int dimY = 2;
 		int dimZ = lang::CELL_SIZE;
 
-		MemoryAddress address(1, 1, lang::toPointer(lang::CELL_SIZE - 1), dimX, dimY, dimZ);
+		MemoryAddress address(1, 1, lang::MAX_CELL_INDEX, dimX, dimY, dimZ);
 		++address;
 		EXPECT_EQ(address, MemoryAddress(0, 0, lang::toPointer(0), dimX, dimY, dimZ));
 	}
+
+    void testNeighbor(int x, int y, lang::Direction direction, int nX, int nY) {
+        int dimX = 3;
+        int dimY = 3;
+        int dimZ = lang::CELL_SIZE;
+        auto z = lang::toPointer(0);
+        MemoryAddress address(x, y, z, dimX, dimY, dimZ);
+        EXPECT_EQ(address.neighborCell(direction), MemoryAddress(nX, nY, z, dimX, dimY, dimZ));
+    }
+
+    TEST(MemoryAddressTest, NeighborCellCommonCaseLeft) {
+        testNeighbor(1, 1, lang::Direction::Left, 0, 1);
+    }
+    TEST(MemoryAddressTest, NeighborCellCommonCaseRight) {
+        testNeighbor(1, 1, lang::Direction::Right, 2, 1);
+    }
+    TEST(MemoryAddressTest, NeighborCellCommonCaseUp) {
+        testNeighbor(1, 1, lang::Direction::Up, 1, 0);
+    }
+    TEST(MemoryAddressTest, NeighborCellCommonCaseDown) {
+        testNeighbor(1, 1, lang::Direction::Down, 1, 2);
+    }
+    TEST(MemoryAddressTest, NeighborCellLessZeroLeft) {
+        testNeighbor(0, 1, lang::Direction::Left, 2, 1);
+    }
+    TEST(MemoryAddressTest, NeighborCellLessZeroUp) {
+        testNeighbor(2, 0, lang::Direction::Up, 2, 2);
+    }
+    TEST(MemoryAddressTest, NeighborCellMoreThanXRight) {
+        testNeighbor(2, 0, lang::Direction::Right, 0, 0);
+    }
+    TEST(MemoryAddressTest, NeighborCellMoreThanYDown) {
+        testNeighbor(2, 2, lang::Direction::Down, 2, 0);
+    }
 }

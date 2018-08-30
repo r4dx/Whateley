@@ -11,24 +11,31 @@
 #include "memory_address.h"
 
 namespace eeagl::vm::memory {
+
+    enum Error { NONE, INVALID_ADDRESS };
+
     struct GetCellResult {
         bool succeed;
-        enum Error { NONE, INVALID_ADDRESS } error;
+        Error error;
         std::shared_ptr<const lang::Cell> cell;
     };
 
     struct SetMemoryResult {
         bool succeed;
-        enum Error { NONE, INVALID_ADDRESS } error;
+        Error error;
+    };
+
+    struct DereferenceResult {
+        bool succeed;
+        Error error;
+        lang::RawCommand value;
     };
 
     class Memory {
     public:
-        GetCellResult get(const CellAddress& address) const;
-		MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
+        MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
+        //DereferenceResult dereference(MemoryAddress address);
         Memory(const std::shared_ptr<MemoryDump> dump);
-    protected:
-        SetMemoryResult set(MemoryAddress, lang::RawCommand command);
     private:
         std::shared_ptr<MemoryDump> dump;
     };

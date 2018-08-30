@@ -3,20 +3,6 @@
 #include <cstring>
 
 namespace eeagl::vm::memory {
-    SetMemoryResult Memory::set(MemoryAddress, lang::RawCommand command) {
-        SetMemoryResult result;
-        result.error = SetMemoryResult::INVALID_ADDRESS;
-        result.succeed = false;
-        return result;
-    }
-
-	GetCellResult Memory::get(const CellAddress& address) const {
-        GetCellResult result;
-        result.succeed = false;
-        result.error = GetCellResult::Error::INVALID_ADDRESS;
-        return result;
-    }
-
 	MemoryAddress Memory::toAddress(int x, int y, lang::CellCommandPointer index) const {
 		return dump->toAddress(x, y, index);
 	}
