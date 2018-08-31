@@ -63,7 +63,6 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsRef>(const lang::RawCommand& command) {
-        /*
         if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
 
@@ -80,7 +79,7 @@ namespace eeagl::vm::exec {
 
         if (op1Value == op2Value)
             context.ip.index = command.operand3.cellCommandPointer;
-        */
+
         return { true };
     }
 

@@ -8,6 +8,10 @@ namespace eeagl::vm::memory {
 		return MemoryAddress(x, y, index, cells[0].size(), cells.size(), lang::CELL_SIZE);
 	}
 
+    bool MemoryDump::isCompatible(MemoryAddress address) const {
+        return address.x < cells[0].size() && address.y < cells.size() && address.index <= lang::MAX_CELL_INDEX;
+    }
+
 	ReadDumpResult MemoryDump::read(std::istream& is) {
         ReadDumpResult result;
         result.succeed = false;

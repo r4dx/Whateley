@@ -39,6 +39,7 @@ namespace eeagl::vm::memory {
         MemoryDumpHeader header;
         std::vector< std::vector < lang::Cell > > cells;
 		MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
+        bool isCompatible(MemoryAddress address) const;
 
         static ReadDumpResult read(std::istream& is);
         WriteDumpResult write(std::ostream& os);

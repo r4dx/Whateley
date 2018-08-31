@@ -1,5 +1,7 @@
 #pragma once
-#include "command.h"
+
+#include "types.h"
+
 #include <unordered_map>
 #include <type_traits>
 
@@ -81,5 +83,6 @@ namespace eeagl::vm::lang {
         { SwapIfEquals, { SwapIfEquals, TypeReference, TypeReference, TypeReference } },
         { Stop, { Stop, NonExistent, NonExistent, NonExistent } }
     };
- 
+
+    int operandChecksum(Operator op, int argumentNum, Operand operand);
 }

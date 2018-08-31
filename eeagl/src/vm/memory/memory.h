@@ -34,7 +34,7 @@ namespace eeagl::vm::memory {
     class Memory {
     public:
         MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
-        //DereferenceResult dereference(MemoryAddress address);
+        DereferenceResult dereference(MemoryAddress address) const;
         Memory(const std::shared_ptr<MemoryDump> dump);
     private:
         std::shared_ptr<MemoryDump> dump;
