@@ -9,11 +9,12 @@ namespace eeagl::vm::exec {
     class ExecutionTest : public ::testing::Test {
     protected:
         virtual void SetUp() override {
-            auto dump = memory::MemoryDumpTest::createSimpleMemoryDump();
+            dump = memory::MemoryDumpTest::createSimpleMemoryDump(5, 5);
             memory = std::make_shared<memory::Memory>(dump);
             context = std::make_shared<Context>(*memory, memory->toAddress(0, 0, lang::toPointer(0)));
             executioner = std::make_shared<Executioner>(*context);
         }
+        std::shared_ptr<memory::MemoryDump> dump;
         std::shared_ptr<memory::Memory> memory;
         std::shared_ptr<Context> context;
         std::shared_ptr<Executioner> executioner;
@@ -47,6 +48,16 @@ namespace eeagl::vm::exec {
         lang::RawCommand command;
         command.op = op;
         command.operand1.cellCommandPointer = operand1CellPointer;
+        return command;
+    }
+
+    lang::RawCommand constructCommand(lang::Operator op, lang::Reference operand1Ref, 
+            lang::Reference operand2Ref, lang::CellCommandPointer operand3CellPointer) {
+        lang::RawCommand command;
+        command.op = op;
+        command.operand1.reference = operand1Ref;
+        command.operand2.reference = operand2Ref;
+        command.operand3.cellCommandPointer = operand3CellPointer;
         return command;
     }
 
@@ -98,5 +109,77 @@ namespace eeagl::vm::exec {
         EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
         EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
         EXPECT_EQ(context->ip.index, jumpPosition);
+    }
+
+    TEST_F(ExecutionTest, JumpIfEqualsRefInvalidAddress) {
+        auto result = executioner->execute(
+            constructCommand(
+                lang::Operator::JumpIfEqualsRef,
+                { lang::Direction::Same, lang::Register::Register_1 },
+                { lang::Direction::Same, lang::Register::Register_1 },
+                (lang::CellCommandPointer)-1));
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
+    }
+
+    TEST_F(ExecutionTest, JumpIfEqualsRefEqual) {
+        auto ipBeforeTheCall = context->ip;
+        auto jumpPosition = lang::MAX_CELL_INDEX;
+        char rightIndex = 0;
+        char downIndex = 1;
+
+        context->registers[lang::Register::Register_1] = lang::toPointer(rightIndex);
+        context->registers[lang::Register::Register_2] = lang::toPointer(downIndex);
+
+        dump->cells[0][1].commands[rightIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
+            { lang::Direction::Same, lang::Register::Register_3 },
+            { lang::Direction::Same, lang::Register::Register_3 }, lang::toPointer(0));
+
+        dump->cells[1][0].commands[downIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
+            { lang::Direction::Same, lang::Register::Register_3 },
+            { lang::Direction::Same, lang::Register::Register_3 }, lang::toPointer(0));
+
+        auto result = executioner->execute(
+            constructCommand(
+                lang::Operator::JumpIfEqualsRef,
+                { lang::Direction::Right, lang::Register::Register_1 },
+                { lang::Direction::Down, lang::Register::Register_2 },
+                jumpPosition));
+
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
+        EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
+        EXPECT_EQ(context->ip.index, jumpPosition);
+    }
+
+    TEST_F(ExecutionTest, JumpIfEqualsRefDifferent) {
+        auto ipBeforeTheCall = context->ip;
+        auto jumpPosition = lang::MAX_CELL_INDEX;
+        char rightIndex = 0;
+        char downIndex = 1;
+
+        context->registers[lang::Register::Register_1] = lang::toPointer(rightIndex);
+        context->registers[lang::Register::Register_2] = lang::toPointer(downIndex);
+
+        dump->cells[0][1].commands[rightIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
+            { lang::Direction::Same, lang::Register::Register_3 },
+            { lang::Direction::Same, lang::Register::Register_3 }, lang::toPointer(0));
+
+        dump->cells[1][0].commands[downIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
+            { lang::Direction::Same, lang::Register::Register_3 },
+            { lang::Direction::Same, lang::Register::Register_1 }, lang::toPointer(0));
+
+        auto result = executioner->execute(
+            constructCommand(
+                lang::Operator::JumpIfEqualsRef,
+                { lang::Direction::Right, lang::Register::Register_1 },
+                { lang::Direction::Down, lang::Register::Register_2 },
+                jumpPosition));
+
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
+        EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
+        EXPECT_EQ(context->ip.index, lang::toPointer((int)ipBeforeTheCall.index + 1));
+
     }
 }

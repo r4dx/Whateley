@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vm/lang/command.h"
-
+#include <optional>
 #include <tuple>
 
 namespace eeagl::vm::memory {
@@ -19,7 +19,7 @@ namespace eeagl::vm::memory {
 		bool operator!=(const MemoryAddress& rhs) const;
 		MemoryAddress& operator++();
 
-        MemoryAddress neighborCell(const lang::Direction direction) const;
+        std::optional<MemoryAddress> neighborCell(const lang::Direction direction) const;
 		int toFlatIndex() const;
 		static MemoryAddress fromFlatIndex(int index, int dimX, int dimY, int dimZ);
 	private:

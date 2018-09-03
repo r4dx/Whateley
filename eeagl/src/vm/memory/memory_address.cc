@@ -49,7 +49,7 @@ namespace eeagl::vm::memory {
         return value;
     }
 
-    MemoryAddress MemoryAddress::neighborCell(const lang::Direction direction) const {
+    std::optional<MemoryAddress> MemoryAddress::neighborCell(const lang::Direction direction) const {
         switch (direction)
         {
         case lang::Direction::Up:
@@ -63,6 +63,7 @@ namespace eeagl::vm::memory {
         case lang::Direction::Same:
             return MemoryAddress(x, y, lang::toPointer(0), dimX, dimY, dimZ);
         }
+        return std::nullopt;
     }
 
     int MemoryAddress::toFlatIndex() const {

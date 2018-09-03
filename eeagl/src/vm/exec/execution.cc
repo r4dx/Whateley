@@ -58,7 +58,7 @@ namespace eeagl::vm::exec {
 
     memory::MemoryAddress Executioner::getAddress(lang::Reference reference) {
         auto cell = context.ip.neighborCell(reference.direction);
-        return context.memory.toAddress(cell.x, cell.y, context.registers[reference.reg]);
+        return context.memory.toAddress(cell->x, cell->y, context.registers[reference.reg]);
     }
 
     template <>
@@ -79,6 +79,8 @@ namespace eeagl::vm::exec {
 
         if (op1Value == op2Value)
             context.ip.index = command.operand3.cellCommandPointer;
+        else
+            ++context.ip;
 
         return { true };
     }
