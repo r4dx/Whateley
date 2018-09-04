@@ -65,7 +65,6 @@ namespace eeagl::vm::exec {
     Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsRef>(const lang::RawCommand& command) {
         if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
-
         
         auto dereferenceResult = context.memory.dereference(getAddress(command.operand1.reference));
         if (!dereferenceResult.succeed)
@@ -88,6 +87,17 @@ namespace eeagl::vm::exec {
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsReg>(
         const lang::RawCommand& command) {
+
+        if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
+            return { false, ExecutionResult::Error::INVALID_ADDRESS };
+
+        auto regValue = context.registers[command.operand1.reg];
+
+        if (regValue == command.operand2.number)
+            context.ip.index = command.operand3.cellCommandPointer;
+        else
+            ++context.ip;
+
         return { true };
     }
 

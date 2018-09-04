@@ -5,6 +5,8 @@
 #include "vm/memory/memory_dump_test.h"
 #include "vm/exec/execution.h"
 
+#include <cstddef>
+
 namespace eeagl::vm::exec {
     class ExecutionTest : public ::testing::Test {
     protected:
@@ -57,6 +59,16 @@ namespace eeagl::vm::exec {
         command.op = op;
         command.operand1.reference = operand1Ref;
         command.operand2.reference = operand2Ref;
+        command.operand3.cellCommandPointer = operand3CellPointer;
+        return command;
+    }
+
+    lang::RawCommand constructCommand(lang::Operator op, lang::Register reg,
+        std::byte number, lang::CellCommandPointer operand3CellPointer) {
+        lang::RawCommand command;
+        command.op = op;
+        command.operand1.reg = reg;
+        command.operand2.number = number;
         command.operand3.cellCommandPointer = operand3CellPointer;
         return command;
     }
@@ -180,6 +192,50 @@ namespace eeagl::vm::exec {
         EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
         EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
         EXPECT_EQ(context->ip.index, lang::toPointer((int)ipBeforeTheCall.index + 1));
+    }
 
+    TEST_F(ExecutionTest, JumpIfEqualsRegInvalidAddress) {
+        auto result = executioner->execute(
+            constructCommand(
+                lang::Operator::JumpIfEqualsReg,
+                lang::Register::Register_1,
+                (std::byte)0,
+                (lang::CellCommandPointer)-1));
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
+    }
+
+    TEST_F(ExecutionTest, JumpIfEqualsRegEqual) {
+        auto ipBeforeTheCall = context->ip;
+        auto jumpPosition = lang::MAX_CELL_INDEX;
+
+        std::byte num = (std::byte)10;
+        auto reg = lang::Register::Register_1;
+        context->registers[reg] = num;
+
+        auto result = executioner->execute(
+            constructCommand(lang::Operator::JumpIfEqualsReg, reg, num, jumpPosition));
+
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
+        EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
+        EXPECT_EQ(context->ip.index, jumpPosition);
+    }
+
+    TEST_F(ExecutionTest, JumpIfEqualsRegDifferent) {
+        auto ipBeforeTheCall = context->ip;
+        auto jumpPosition = lang::MAX_CELL_INDEX;
+
+        std::byte num = (std::byte)10;
+        auto reg = lang::Register::Register_1;
+        context->registers[reg] = num;
+
+        auto result = executioner->execute(
+            constructCommand(lang::Operator::JumpIfEqualsReg, reg, (std::byte)((int)num + 5), jumpPosition));
+
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
+        EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
+        EXPECT_EQ(context->ip.index, lang::toPointer((int)ipBeforeTheCall.index + 1));
     }
 }
