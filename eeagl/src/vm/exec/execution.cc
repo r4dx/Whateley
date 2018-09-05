@@ -91,6 +91,9 @@ namespace eeagl::vm::exec {
         if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
 
+        if ((int)command.operand2.number > (int)lang::MAX_NUMBER)
+            return { false, ExecutionResult::Error::NUMBER_IS_TOO_BIG };
+
         auto regValue = context.registers[command.operand1.reg];
 
         if (regValue == command.operand2.number)
@@ -104,6 +107,7 @@ namespace eeagl::vm::exec {
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Set>(
         const lang::RawCommand& command) {
+
         return { true };
     }
 

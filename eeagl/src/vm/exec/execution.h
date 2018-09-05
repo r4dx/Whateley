@@ -24,7 +24,8 @@ namespace eeagl::vm::exec {
             enum Error {
                 INVALID_ADDRESS,
                 UNKNOWN_OPERATOR,
-                DEREFERENCE_ERROR
+                DEREFERENCE_ERROR,
+                NUMBER_IS_TOO_BIG
             } error;
 
         };

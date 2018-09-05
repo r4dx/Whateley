@@ -205,6 +205,17 @@ namespace eeagl::vm::exec {
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
     }
 
+    TEST_F(ExecutionTest, JumpIfEqualsRegNumberTooBig) {
+        auto result = executioner->execute(
+            constructCommand(
+                lang::Operator::JumpIfEqualsReg,
+                lang::Register::Register_1,
+                (std::byte)((int)lang::MAX_NUMBER + 1),
+                lang::toPointer(0)));
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::NUMBER_IS_TOO_BIG);
+    }
+
     TEST_F(ExecutionTest, JumpIfEqualsRegEqual) {
         auto ipBeforeTheCall = context->ip;
         auto jumpPosition = lang::MAX_CELL_INDEX;
