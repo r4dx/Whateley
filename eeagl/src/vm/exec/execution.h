@@ -11,7 +11,7 @@ namespace eeagl::vm::exec {
         memory::Memory& memory;
 
         memory::MemoryAddress ip;
-        std::unordered_map<lang::Register, lang::CellCommandPointer> registers;
+        std::unordered_map<lang::Register, lang::Number> registers;
         std::unordered_map<lang::DirectionRegister, lang::Direction> directionRegisters;
 
         Context(memory::Memory& memory, memory::MemoryAddress ip);

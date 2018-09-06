@@ -6,7 +6,7 @@
 namespace eeagl::vm::exec {
     Context::Context(memory::Memory& memory, memory::MemoryAddress ip) : memory(memory), ip(ip) {
         for (auto reg : lang::REGISTERS)
-            registers[reg] = lang::toPointer(0);
+            registers[reg] = lang::MIN_NUMBER;
 
         for (auto dirReg : lang::DIRECTION_REGISTERS)
             directionRegisters[dirReg] = lang::Direction::Same;
@@ -36,12 +36,12 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Increment>(const lang::RawCommand& command) {
-        char value = (char)context.registers[command.operand1.reg];
+        lang::Number value = context.registers[command.operand1.reg];
         value++;
-        if (value > (char)lang::MAX_CELL_INDEX)
+        if (value > lang::MAX_CELL_INDEX)
             value = 0;
 
-        context.registers[command.operand1.reg] = lang::toPointer(value);
+        context.registers[command.operand1.reg] = value;
         ++context.ip;
         return { true };
     }
@@ -91,7 +91,7 @@ namespace eeagl::vm::exec {
         if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
 
-        if ((int)command.operand2.number > (int)lang::MAX_NUMBER)
+        if (command.operand2.number > lang::MAX_NUMBER)
             return { false, ExecutionResult::Error::NUMBER_IS_TOO_BIG };
 
         auto regValue = context.registers[command.operand1.reg];

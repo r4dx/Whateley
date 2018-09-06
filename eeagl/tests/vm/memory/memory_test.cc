@@ -26,15 +26,15 @@ namespace eeagl::vm::memory {
     TEST_F(MemoryTest, DereferenceCommonCase) {
         lang::RawCommand command;
         command.op = lang::Operator::Stop;
-        auto address = memory->toAddress(0, 0, lang::toPointer(0));
-        dump->cells[address.y][address.x].commands[(int)address.index] = command;
+        auto address = memory->toAddress(0, 0, 0);
+        dump->cells[address.y][address.x].commands[address.index] = command;
         auto result = memory->dereference(address);
         EXPECT_TRUE(result.succeed);
         EXPECT_EQ(result.value, command);
     }
 
     TEST_F(MemoryTest, DereferenceInvalidAddress) {
-        auto address = MemoryAddress(99, 0, lang::toPointer(0), 100, 100, 100);
+        auto address = MemoryAddress(99, 0, 0, 100, 100, 100);
         auto result = memory->dereference(address);
         EXPECT_FALSE(result.succeed);
         EXPECT_EQ(result.error, Error::INVALID_ADDRESS);

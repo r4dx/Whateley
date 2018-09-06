@@ -6,8 +6,6 @@
 
 namespace eeagl::vm::lang {
     static const int CELL_SIZE = 40;
-    static const int MIN_NUMBER = 0;
-    static const int MAX_NUMBER = CELL_SIZE - 1;
 
     enum Operator : char {
         Set,
@@ -51,14 +49,13 @@ namespace eeagl::vm::lang {
         DirectionRegister::Directional_Register_1
     };
 
-    typedef std::byte CellCommandPointer;
+    typedef int CellCommandPointer;
+    typedef CellCommandPointer Number;
 
-    inline CellCommandPointer toPointer(char value) {
-        assert(value < CELL_SIZE && value >= 0);
-        return (CellCommandPointer)value;
-    };
+    static const Number MIN_NUMBER(0);
+    static const Number MAX_NUMBER(CELL_SIZE - 1);
 
-    static const CellCommandPointer MAX_CELL_INDEX = toPointer(CELL_SIZE - 1);
+    static const CellCommandPointer MAX_CELL_INDEX(CELL_SIZE - 1);
 
     enum Direction : char {
         Same,
@@ -82,7 +79,7 @@ namespace eeagl::vm::lang {
     };
 
     union Operand {
-        std::byte number;
+        Number number;
         Register reg;
         DirectionRegister directionReg;
         CellCommandPointer cellCommandPointer;

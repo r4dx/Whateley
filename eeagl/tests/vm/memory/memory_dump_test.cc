@@ -74,17 +74,17 @@ namespace eeagl::vm::memory {
 
     TEST_F(MemoryDumpTest, IsCompatibleCommonCase) {
         auto dump = createSimpleMemoryDump();
-        EXPECT_TRUE(dump->isCompatible(dump->toAddress(0, 0, lang::toPointer(0))));
+        EXPECT_TRUE(dump->isCompatible(dump->toAddress(0, 0, 0)));
     }
 
     TEST_F(MemoryDumpTest, IsCompatibleXBigger) {
         auto dump = createSimpleMemoryDump();
-        EXPECT_FALSE(dump->isCompatible(dump->toAddress(dump->cells[0].size(), 0, lang::toPointer(0))));
+        EXPECT_FALSE(dump->isCompatible(dump->toAddress(dump->cells[0].size(), 0, 0)));
     }
 
     TEST_F(MemoryDumpTest, IsCompatibleYBigger) {
         auto dump = createSimpleMemoryDump();
-        EXPECT_FALSE(dump->isCompatible(dump->toAddress(0, dump->cells.size(), lang::toPointer(0))));
+        EXPECT_FALSE(dump->isCompatible(dump->toAddress(0, dump->cells.size(), 0)));
     }
 
     TEST_F(MemoryDumpTest, WriteSucceed) {

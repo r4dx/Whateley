@@ -13,7 +13,7 @@ namespace eeagl::vm::exec {
         virtual void SetUp() override {
             dump = memory::MemoryDumpTest::createSimpleMemoryDump(5, 5);
             memory = std::make_shared<memory::Memory>(dump);
-            context = std::make_shared<Context>(*memory, memory->toAddress(0, 0, lang::toPointer(0)));
+            context = std::make_shared<Context>(*memory, memory->toAddress(0, 0, 0));
             executioner = std::make_shared<Executioner>(*context);
         }
         std::shared_ptr<memory::MemoryDump> dump;
@@ -64,7 +64,7 @@ namespace eeagl::vm::exec {
     }
 
     lang::RawCommand constructCommand(lang::Operator op, lang::Register reg,
-        std::byte number, lang::CellCommandPointer operand3CellPointer) {
+        lang::Number number, lang::CellCommandPointer operand3CellPointer) {
         lang::RawCommand command;
         command.op = op;
         command.operand1.reg = reg;
@@ -75,29 +75,29 @@ namespace eeagl::vm::exec {
 
     TEST_F(ExecutionTest, InrementSimple) {
         auto reg = lang::Register::Register_1;
-        context->registers[reg] = lang::toPointer(0);
+        context->registers[reg] = 0;
         executioner->execute(constructCommand(lang::Operator::Increment, reg));
-        EXPECT_EQ(context->registers[reg], lang::toPointer(1));
+        EXPECT_EQ(context->registers[reg], 1);
     }
 
     TEST_F(ExecutionTest, InrementToCellSizeResultsInZero) {
         auto reg = lang::Register::Register_1;
         context->registers[reg] = lang::MAX_CELL_INDEX;
         executioner->execute(constructCommand(lang::Operator::Increment, reg));
-        EXPECT_EQ(context->registers[reg], lang::toPointer(0));
+        EXPECT_EQ(context->registers[reg], 0);
     }
 
     TEST_F(ExecutionTest, InrementAddsToContextInstructionPointer) {
-        EXPECT_EQ(context->ip.index, lang::toPointer(0));
+        EXPECT_EQ(context->ip.index, 0);
         auto result = executioner->execute(constructCommand(lang::Operator::Increment, lang::Register::Register_1));
         EXPECT_TRUE(result.success);
-        EXPECT_EQ(context->ip.index, lang::toPointer(1));
+        EXPECT_EQ(context->ip.index, 1);
     }
 
     TEST_F(ExecutionTest, JumpToInvalidGreaterAddress) {
         auto expected = context->ip;
-        auto result = executioner->execute(constructCommand(lang::Operator::Jump, 
-            (lang::CellCommandPointer)lang::CELL_SIZE));
+        auto result = executioner->execute(
+            constructCommand(lang::Operator::Jump, lang::CELL_SIZE));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
         EXPECT_EQ(expected, context->ip);
@@ -105,8 +105,7 @@ namespace eeagl::vm::exec {
 
     TEST_F(ExecutionTest, JumpToInvalidNegativeAddress) {
         auto expected = context->ip;
-        auto result = executioner->execute(constructCommand(lang::Operator::Jump,
-            (lang::CellCommandPointer)-1));
+        auto result = executioner->execute(constructCommand(lang::Operator::Jump, lang::MAX_CELL_INDEX + 1));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
         EXPECT_EQ(expected, context->ip);
@@ -129,7 +128,7 @@ namespace eeagl::vm::exec {
                 lang::Operator::JumpIfEqualsRef,
                 { lang::Direction::Same, lang::Register::Register_1 },
                 { lang::Direction::Same, lang::Register::Register_1 },
-                (lang::CellCommandPointer)-1));
+                lang::MAX_CELL_INDEX + 1));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
     }
@@ -137,19 +136,19 @@ namespace eeagl::vm::exec {
     TEST_F(ExecutionTest, JumpIfEqualsRefEqual) {
         auto ipBeforeTheCall = context->ip;
         auto jumpPosition = lang::MAX_CELL_INDEX;
-        char rightIndex = 0;
-        char downIndex = 1;
+        lang::Number rightIndex = 0;
+        lang::Number downIndex = 1;
 
-        context->registers[lang::Register::Register_1] = lang::toPointer(rightIndex);
-        context->registers[lang::Register::Register_2] = lang::toPointer(downIndex);
+        context->registers[lang::Register::Register_1] = rightIndex;
+        context->registers[lang::Register::Register_2] = downIndex;
 
         dump->cells[0][1].commands[rightIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
             { lang::Direction::Same, lang::Register::Register_3 },
-            { lang::Direction::Same, lang::Register::Register_3 }, lang::toPointer(0));
+            { lang::Direction::Same, lang::Register::Register_3 }, 0);
 
         dump->cells[1][0].commands[downIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
             { lang::Direction::Same, lang::Register::Register_3 },
-            { lang::Direction::Same, lang::Register::Register_3 }, lang::toPointer(0));
+            { lang::Direction::Same, lang::Register::Register_3 }, 0);
 
         auto result = executioner->execute(
             constructCommand(
@@ -167,19 +166,19 @@ namespace eeagl::vm::exec {
     TEST_F(ExecutionTest, JumpIfEqualsRefDifferent) {
         auto ipBeforeTheCall = context->ip;
         auto jumpPosition = lang::MAX_CELL_INDEX;
-        char rightIndex = 0;
-        char downIndex = 1;
+        lang::Number rightIndex = 0;
+        lang::Number downIndex = 1;
 
-        context->registers[lang::Register::Register_1] = lang::toPointer(rightIndex);
-        context->registers[lang::Register::Register_2] = lang::toPointer(downIndex);
+        context->registers[lang::Register::Register_1] = rightIndex;
+        context->registers[lang::Register::Register_2] = downIndex;
 
         dump->cells[0][1].commands[rightIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
             { lang::Direction::Same, lang::Register::Register_3 },
-            { lang::Direction::Same, lang::Register::Register_3 }, lang::toPointer(0));
+            { lang::Direction::Same, lang::Register::Register_3 }, 0);
 
         dump->cells[1][0].commands[downIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
             { lang::Direction::Same, lang::Register::Register_3 },
-            { lang::Direction::Same, lang::Register::Register_1 }, lang::toPointer(0));
+            { lang::Direction::Same, lang::Register::Register_1 }, 0);
 
         auto result = executioner->execute(
             constructCommand(
@@ -191,7 +190,7 @@ namespace eeagl::vm::exec {
         EXPECT_TRUE(result.success);
         EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
         EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
-        EXPECT_EQ(context->ip.index, lang::toPointer((int)ipBeforeTheCall.index + 1));
+        EXPECT_EQ(context->ip.index, ipBeforeTheCall.index + 1);
     }
 
     TEST_F(ExecutionTest, JumpIfEqualsRegInvalidAddress) {
@@ -199,8 +198,8 @@ namespace eeagl::vm::exec {
             constructCommand(
                 lang::Operator::JumpIfEqualsReg,
                 lang::Register::Register_1,
-                (std::byte)0,
-                (lang::CellCommandPointer)-1));
+                0,
+                lang::MAX_CELL_INDEX + 1));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
     }
@@ -210,8 +209,8 @@ namespace eeagl::vm::exec {
             constructCommand(
                 lang::Operator::JumpIfEqualsReg,
                 lang::Register::Register_1,
-                (std::byte)((int)lang::MAX_NUMBER + 1),
-                lang::toPointer(0)));
+                lang::MAX_NUMBER + 1,
+                0));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::NUMBER_IS_TOO_BIG);
     }
@@ -220,7 +219,7 @@ namespace eeagl::vm::exec {
         auto ipBeforeTheCall = context->ip;
         auto jumpPosition = lang::MAX_CELL_INDEX;
 
-        std::byte num = (std::byte)10;
+        lang::Number num = 10;
         auto reg = lang::Register::Register_1;
         context->registers[reg] = num;
 
@@ -237,16 +236,16 @@ namespace eeagl::vm::exec {
         auto ipBeforeTheCall = context->ip;
         auto jumpPosition = lang::MAX_CELL_INDEX;
 
-        std::byte num = (std::byte)10;
+        lang::Number num = 10;
         auto reg = lang::Register::Register_1;
         context->registers[reg] = num;
 
         auto result = executioner->execute(
-            constructCommand(lang::Operator::JumpIfEqualsReg, reg, (std::byte)((int)num + 5), jumpPosition));
+            constructCommand(lang::Operator::JumpIfEqualsReg, reg, num + 5, jumpPosition));
 
         EXPECT_TRUE(result.success);
         EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
         EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
-        EXPECT_EQ(context->ip.index, lang::toPointer((int)ipBeforeTheCall.index + 1));
+        EXPECT_EQ(context->ip.index, ipBeforeTheCall.index + 1);
     }
 }

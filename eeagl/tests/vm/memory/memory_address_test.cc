@@ -28,11 +28,11 @@ namespace eeagl::vm::memory {
 		int dimY = 1;
 		int dimZ = 2;
 
-		MemoryAddress addr(1, 2, (std::byte)1, dimX, dimY, dimZ);
+		MemoryAddress addr(1, 2, 1, dimX, dimY, dimZ);
 		EXPECT_EQ(15, addr.toFlatIndex());
-		addr = { 0, 3, (std::byte)0, dimX, dimY, dimZ };
+		addr = { 0, 3, 0, dimX, dimY, dimZ };
 		EXPECT_EQ(18, addr.toFlatIndex());
-		addr = { 2, 3, (std::byte)0, dimX, dimY, dimZ };
+		addr = { 2, 3, 0, dimX, dimY, dimZ };
 		EXPECT_EQ(22, addr.toFlatIndex());
 	}
 
@@ -42,19 +42,19 @@ namespace eeagl::vm::memory {
 		int dimZ = 2;
 
 		auto addr = MemoryAddress::fromFlatIndex(15, dimX, dimY, dimZ);
-		EXPECT_EQ(MemoryAddress(1, 2, (std::byte)1, dimX, dimY, dimZ), addr);
+		EXPECT_EQ(MemoryAddress(1, 2, 1, dimX, dimY, dimZ), addr);
 
 		addr = MemoryAddress::fromFlatIndex(18, dimX, dimY, dimZ);
-		EXPECT_EQ(MemoryAddress(0, 3, (std::byte)0, dimX, dimY, dimZ), addr);
+		EXPECT_EQ(MemoryAddress(0, 3, 0, dimX, dimY, dimZ), addr);
 
 		addr = MemoryAddress::fromFlatIndex(22, dimX, dimY, dimZ);
-		EXPECT_EQ(MemoryAddress(2, 3, (std::byte)0, dimX, dimY, dimZ), addr);
+		EXPECT_EQ(MemoryAddress(2, 3, 0, dimX, dimY, dimZ), addr);
 	}
 
 	TEST(MemoryAddressTest, IncrementAddressSimple) {
-		MemoryAddress address(0, 0, lang::toPointer(0), 1, 1, lang::CELL_SIZE);
+		MemoryAddress address(0, 0, 0, 1, 1, lang::CELL_SIZE);
 		++address;
-		EXPECT_EQ(address, MemoryAddress(0, 0, lang::toPointer(1), 1, 1, lang::CELL_SIZE));
+		EXPECT_EQ(address, MemoryAddress(0, 0, 1, 1, 1, lang::CELL_SIZE));
 	}
 
 	TEST(MemoryAddressTest, IncrementAddressMoreThanCellSize) {
@@ -63,7 +63,7 @@ namespace eeagl::vm::memory {
 		int dimZ = lang::CELL_SIZE;
 		MemoryAddress address(0, 0, lang::MAX_CELL_INDEX, dimX, dimY, dimZ);
 		++address;
-		EXPECT_EQ(address, MemoryAddress(1, 0, lang::toPointer(0), dimX, dimY, dimZ));
+		EXPECT_EQ(address, MemoryAddress(1, 0, 0, dimX, dimY, dimZ));
 	}
 
 	TEST(MemoryAddressTest, IncrementAddressMoreThanCellSizeAndLastInARow) {
@@ -71,9 +71,9 @@ namespace eeagl::vm::memory {
 		int dimY = 2;
 		int dimZ = lang::CELL_SIZE;
 
-		MemoryAddress address(1, 0, lang::toPointer(lang::CELL_SIZE - 1), dimX, dimY, dimZ);
+		MemoryAddress address(1, 0, lang::CELL_SIZE - 1, dimX, dimY, dimZ);
 		++address;
-		EXPECT_EQ(address, MemoryAddress(0, 1, lang::toPointer(0), dimX, dimY, dimZ));
+		EXPECT_EQ(address, MemoryAddress(0, 1, 0, dimX, dimY, dimZ));
 	}
 
 	TEST(MemoryAddressTest, IncrementAddressGoesBackWhenLastEntry) {
@@ -83,14 +83,14 @@ namespace eeagl::vm::memory {
 
 		MemoryAddress address(1, 1, lang::MAX_CELL_INDEX, dimX, dimY, dimZ);
 		++address;
-		EXPECT_EQ(address, MemoryAddress(0, 0, lang::toPointer(0), dimX, dimY, dimZ));
+		EXPECT_EQ(address, MemoryAddress(0, 0, 0, dimX, dimY, dimZ));
 	}
 
     void testNeighbor(int x, int y, lang::Direction direction, int nX, int nY) {
         int dimX = 3;
         int dimY = 3;
         int dimZ = lang::CELL_SIZE;
-        auto z = lang::toPointer(0);
+        int z = 0;
         MemoryAddress address(x, y, z, dimX, dimY, dimZ);
         EXPECT_EQ(address.neighborCell(direction), MemoryAddress(nX, nY, z, dimX, dimY, dimZ));
     }

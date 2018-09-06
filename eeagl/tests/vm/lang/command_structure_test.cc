@@ -7,7 +7,7 @@ namespace eeagl::vm::lang {
     TEST(CommandStructureTest, OperandChecksumNumberEqual) {
         Operand operand;
         const int NUM = 33;
-        operand.number = lang::toPointer(NUM);
+        operand.number = NUM;
         EXPECT_EQ(NUM, operandChecksum(Operator::Set, 1, operand));
     }
 
@@ -15,11 +15,11 @@ namespace eeagl::vm::lang {
         const int NUM = 33;
 
         Operand operand1;
-        operand1.number = lang::toPointer(NUM);
+        operand1.number = NUM;
         int checksum1 = operandChecksum(Operator::Set, 1, operand1);
 
         Operand operand2;
-        operand2.number = lang::toPointer(NUM + 1);
+        operand2.number = NUM + 1;
         int checksum2 = operandChecksum(Operator::Set, 1, operand2);
         EXPECT_NE(-1, checksum1);
         EXPECT_NE(-1, checksum2);
@@ -80,7 +80,7 @@ namespace eeagl::vm::lang {
     }
 
     TEST(CommandStructureTest, OperandChecksumPointerEqual) {
-        const CellCommandPointer POINTER = lang::toPointer(1);
+        const CellCommandPointer POINTER = 1;
         Operand operand1;
         operand1.cellCommandPointer = POINTER;
         int checksum1 = operandChecksum(Operator::Jump, 0, operand1);
@@ -96,11 +96,11 @@ namespace eeagl::vm::lang {
 
     TEST(CommandStructureTest, OperandChecksumPointerDiffer) {
         Operand operand1;
-        operand1.cellCommandPointer = lang::toPointer(1);
+        operand1.cellCommandPointer = 1;
         int checksum1 = operandChecksum(Operator::Jump, 0, operand1);
 
         Operand operand2;
-        operand2.cellCommandPointer = lang::toPointer(2);
+        operand2.cellCommandPointer = 2;
         int checksum2 = operandChecksum(Operator::Jump, 0, operand2);
 
         EXPECT_NE(-1, checksum1);

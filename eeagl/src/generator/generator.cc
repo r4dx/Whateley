@@ -131,7 +131,7 @@ namespace eeagl::generator {
 				parameters.yDimension, vm::lang::CELL_SIZE);
             vm::lang::RawCommand command = commandsToAdd[0];
             commandsToAdd.erase(commandsToAdd.begin());
-            result.result->cells[coords.y][coords.x].commands[(int)coords.index] = command;
+            result.result->cells[coords.y][coords.x].commands[coords.index] = command;
         }
 
         while (firstUnusedIndex < unusedIndices.size()) {
@@ -144,7 +144,7 @@ namespace eeagl::generator {
                 result.error = GenerateResult::Error::NO_OPERAND_FOR_OPERATOR;
                 return result;
             }
-            result.result->cells[coords.y][coords.x].commands[(int)coords.index] = *commandResult;
+            result.result->cells[coords.y][coords.x].commands[coords.index] = *commandResult;
         }
 
         result.succeed = true;
@@ -168,14 +168,14 @@ namespace eeagl::generator {
 
     std::optional<vm::lang::Operand> MemoryDumpGenerator::getRandomOperand(vm::lang::OperandType type) {
         vm::lang::Operand result;
-        result.number = (std::byte)0;
+        result.number = 0;
 
         std::uniform_int_distribution<int> pointerUD(0, vm::lang::CELL_SIZE - 1);
         std::uniform_int_distribution<int> numberUD(vm::lang::MIN_NUMBER, vm::lang::MAX_NUMBER - 1);
 
         switch (type) {
         case vm::lang::OperandType::TypeCellCommandPointer: {
-            result.cellCommandPointer = (std::byte)pointerUD(engine);
+            result.cellCommandPointer = pointerUD(engine);
             break;
         }
         case vm::lang::OperandType::TypeDirectionRegister: {
@@ -188,7 +188,7 @@ namespace eeagl::generator {
             break;
         }
         case vm::lang::OperandType::TypeNumber: {
-            result.number = (std::byte)numberUD(engine);
+            result.number = numberUD(engine);
             break;
         }
         case vm::lang::OperandType::TypeReference: {

@@ -13,12 +13,6 @@ namespace eeagl::vm::memory {
 		assert(x >= 0 && y >= 0 && dimX > 0 && dimY > 0 && dimZ > 0);
 	}
 
-	MemoryAddress::MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr, std::tuple<int, int, int> dimensions) :
-		MemoryAddress(std::get<0>(addr), std::get<1>(addr), std::get<2>(addr), 
-		std::get<0>(dimensions),
-		std::get<1>(dimensions),
-		std::get<2>(dimensions)) { }
-
 	bool MemoryAddress::operator==(const MemoryAddress& rhs) const {
 		return x == rhs.x && y == rhs.y && index == rhs.index;
 	}
@@ -27,10 +21,10 @@ namespace eeagl::vm::memory {
 	}
 
 	MemoryAddress& MemoryAddress::operator++() {
-		if ((int)index + 1 < dimZ)
-			index = lang::toPointer((int)index + 1);
+		if (index + 1 < dimZ)
+			index = index + 1;
 		else {
-			index = lang::toPointer(0);
+			index = 0;
 
 			if (++x >= dimX) {
 				x = 0;
@@ -53,15 +47,15 @@ namespace eeagl::vm::memory {
         switch (direction)
         {
         case lang::Direction::Up:
-            return MemoryAddress(x, rotator(y - 1, dimY), lang::toPointer(0), dimX, dimY, dimZ);
+            return MemoryAddress(x, rotator(y - 1, dimY), 0, dimX, dimY, dimZ);
         case lang::Direction::Right:
-            return MemoryAddress(rotator(x + 1, dimX), y, lang::toPointer(0), dimX, dimY, dimZ);
+            return MemoryAddress(rotator(x + 1, dimX), y, 0, dimX, dimY, dimZ);
         case lang::Direction::Left:
-            return MemoryAddress(rotator(x - 1, dimX), y, lang::toPointer(0), dimX, dimY, dimZ);
+            return MemoryAddress(rotator(x - 1, dimX), y, 0, dimX, dimY, dimZ);
         case lang::Direction::Down:
-            return MemoryAddress(x, rotator(y + 1, dimY), lang::toPointer(0), dimX, dimY, dimZ);
+            return MemoryAddress(x, rotator(y + 1, dimY), 0, dimX, dimY, dimZ);
         case lang::Direction::Same:
-            return MemoryAddress(x, y, lang::toPointer(0), dimX, dimY, dimZ);
+            return MemoryAddress(x, y, 0, dimX, dimY, dimZ);
         }
         return std::nullopt;
     }
@@ -75,6 +69,6 @@ namespace eeagl::vm::memory {
 		int x = (index - y * dimZ * dimX) / dimZ;
 		int z = index - y * dimZ * dimX - x * dimZ;
 
-		return MemoryAddress(x, y, std::byte(z), dimX, dimY, dimZ);
+		return MemoryAddress(x, y, z, dimX, dimY, dimZ);
 	}
 }
