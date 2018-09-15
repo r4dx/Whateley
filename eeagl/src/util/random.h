@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <utility>
 
-namespace eeagl::random {
+namespace eeagl::util::random {
     template <typename T>
     std::optional<T> random(const std::set<T>& set) {
         if (set.size() < 1)
@@ -26,12 +26,4 @@ namespace eeagl::random {
 
         return value;
     }
-
-    template <typename T>
-    std::optional<T> getRandom(std::set<T>& remainingSet, const std::set<T>& fullSet) {
-        if (remainingSet.size() > 0)
-            return popRandom<T>(remainingSet);
-        return random<T>(fullSet);
-    }
-
 }

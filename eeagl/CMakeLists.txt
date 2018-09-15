@@ -71,7 +71,8 @@ add_executable(runUnitTests
     tests/vm/memory/memory_dump_test.cc 
     tests/vm/memory/memory_dump_test.h
     tests/vm/simulation_test.cc
-	tests/vm/exec/execution_test.cc)
+	tests/vm/exec/execution_test.cc
+	tests/util/random_test.cc)
 
 target_link_libraries(runUnitTests gtest gtest_main)
 target_link_libraries(runUnitTests eeagl_lib)
