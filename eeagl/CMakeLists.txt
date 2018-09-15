@@ -35,6 +35,7 @@ PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/simulation.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/generator/generator.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/util/random.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/generator/generator.cc
 )
 

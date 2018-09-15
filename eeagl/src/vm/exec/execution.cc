@@ -120,6 +120,7 @@ namespace eeagl::vm::exec {
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SetRandomDirection>(
         const lang::RawCommand& command) {
+
         return { true };
     }
 

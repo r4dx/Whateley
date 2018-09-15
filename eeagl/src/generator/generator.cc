@@ -1,42 +1,14 @@
 #pragma once
 #include "generator.h"
+#include "util/random.h"
 
 #include <memory>
-#include <random>
 #include <map>
 #include <iterator>
-#include <utility>
 #include <numeric>
+#include "optional"
 
 namespace eeagl::generator {
-    template <typename T>
-    std::optional<T> random(const std::set<T>& set) {
-        if (set.size() < 1)
-            return std::nullopt;
-
-        std::vector<T> result;
-        std::sample(set.begin(), set.end(), std::back_inserter(result),
-            1, std::mt19937{ std::random_device{}() });
-        T value = result[0];
-        return value;
-    }
-
-    template <typename T>
-    std::optional<T> popRandom(std::set<T>& set) {
-        auto value = random<T>(set);
-        if (value.has_value())
-            set.erase(*value);
-
-        return value;
-    }
-
-    template <typename T>
-    std::optional<T> getRandom(std::set<T>& remainingSet, const std::set<T>& fullSet) {
-        if (remainingSet.size() > 0)
-            return popRandom<T>(remainingSet);
-        return random<T>(fullSet);
-    }
-
     GeneratorParameters::GeneratorParameters() {
         xDimension = 5;
         yDimension = 5;
@@ -96,7 +68,7 @@ namespace eeagl::generator {
         commandsToAdd.clear();
 
         while (remainingOperators.size() > 0) {
-            auto commandOp = *(getRandom<vm::lang::Operator>(remainingOperators, parameters.operators));
+            auto commandOp = *(random::getRandom<vm::lang::Operator>(remainingOperators, parameters.operators));
             auto structure = vm::lang::COMMAND_STRUCTURE.at(commandOp);
             auto commandResult = getRandomCommand(structure);
             if (!commandResult.has_value()) {
@@ -138,7 +110,7 @@ namespace eeagl::generator {
             int flatCoords = unusedIndices.at(firstUnusedIndex++);
             auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, 
 				parameters.yDimension, vm::lang::CELL_SIZE);
-            auto commandOp = *(random<vm::lang::Operator>(parameters.operators));
+            auto commandOp = *(random::random<vm::lang::Operator>(parameters.operators));
             auto commandResult = getRandomCommand(vm::lang::COMMAND_STRUCTURE.at(commandOp));
             if (!commandResult.has_value()) {
                 result.error = GenerateResult::Error::NO_OPERAND_FOR_OPERATOR;
@@ -179,7 +151,7 @@ namespace eeagl::generator {
             break;
         }
         case vm::lang::OperandType::TypeDirectionRegister: {
-            auto dirReg = getRandom<vm::lang::DirectionRegister>(
+            auto dirReg = random::getRandom<vm::lang::DirectionRegister>(
                 remainingDirectionRegisters, parameters.directionRegisters);
             if (!dirReg.has_value())
                 return std::nullopt;
@@ -192,12 +164,12 @@ namespace eeagl::generator {
             break;
         }
         case vm::lang::OperandType::TypeReference: {
-            auto dir = getRandom<vm::lang::Direction>(remainingDirections, parameters.directions);
+            auto dir = random::getRandom<vm::lang::Direction>(remainingDirections, parameters.directions);
             if (!dir.has_value())
                 return std::nullopt;
 
             result.reference.direction = *dir;
-            auto reg = getRandom<vm::lang::Register>(remainingRegisters, parameters.registers);
+            auto reg = random::getRandom<vm::lang::Register>(remainingRegisters, parameters.registers);
             if (!reg.has_value())
                 return std::nullopt;
 
@@ -205,7 +177,7 @@ namespace eeagl::generator {
             break;
         }
         case vm::lang::OperandType::TypeRegister: {
-            auto randomReg = getRandom<vm::lang::Register>(remainingRegisters, parameters.registers);
+            auto randomReg = random::getRandom<vm::lang::Register>(remainingRegisters, parameters.registers);
             if (!randomReg.has_value())
                 return std::nullopt;
 
