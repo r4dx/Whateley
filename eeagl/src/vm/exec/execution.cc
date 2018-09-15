@@ -108,6 +108,12 @@ namespace eeagl::vm::exec {
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Set>(
         const lang::RawCommand& command) {
 
+        if (command.operand2.number > lang::MAX_NUMBER)
+            return { false, ExecutionResult::Error::NUMBER_IS_TOO_BIG };
+
+        context.registers[command.operand1.reg] = command.operand2.number;
+
+        ++context.ip;
         return { true };
     }
 

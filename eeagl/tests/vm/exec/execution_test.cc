@@ -73,6 +73,15 @@ namespace eeagl::vm::exec {
         return command;
     }
 
+    lang::RawCommand constructCommand(lang::Operator op, lang::Register reg,
+        lang::Number number) {
+        lang::RawCommand command;
+        command.op = op;
+        command.operand1.reg = reg;
+        command.operand2.number = number;
+        return command;
+    }
+
     TEST_F(ExecutionTest, InrementSimple) {
         auto reg = lang::Register::Register_1;
         context->registers[reg] = 0;
@@ -247,5 +256,32 @@ namespace eeagl::vm::exec {
         EXPECT_EQ(context->ip.x, ipBeforeTheCall.x);
         EXPECT_EQ(context->ip.y, ipBeforeTheCall.y);
         EXPECT_EQ(context->ip.index, ipBeforeTheCall.index + 1);
+    }
+
+    TEST_F(ExecutionTest, SetNumberTooBig) {
+        auto contextBeforeTheCall = *context;
+
+        auto reg = lang::Register::Register_1;
+        auto result = executioner->execute(constructCommand(lang::Operator::Set, reg, lang::MAX_NUMBER + 1));
+
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::NUMBER_IS_TOO_BIG);
+        EXPECT_EQ(context->ip.x, contextBeforeTheCall.ip.x);
+        EXPECT_EQ(context->ip.y, contextBeforeTheCall.ip.y);
+        EXPECT_EQ(context->registers[reg], contextBeforeTheCall.registers[reg]);
+        EXPECT_EQ(context->ip.index, contextBeforeTheCall.ip.index);
+    }
+
+    TEST_F(ExecutionTest, SetNumberSuccess) {
+        auto contextBeforeTheCall = *context;
+        auto reg = lang::Register::Register_1;
+        auto number = lang::MAX_NUMBER - 1;
+        auto result = executioner->execute(constructCommand(lang::Operator::Set, reg, number));
+
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(context->ip.x, contextBeforeTheCall.ip.x);
+        EXPECT_EQ(context->ip.y, contextBeforeTheCall.ip.y);
+        EXPECT_EQ(context->registers[reg], number);
+        EXPECT_EQ(context->ip.index, contextBeforeTheCall.ip.index + 1);
     }
 }
