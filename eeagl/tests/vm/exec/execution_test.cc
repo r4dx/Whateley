@@ -6,6 +6,7 @@
 #include "vm/exec/execution.h"
 
 #include <cstddef>
+#include <functional>
 
 namespace eeagl::vm::exec {
     class ExecutionTest : public ::testing::Test {
@@ -46,6 +47,13 @@ namespace eeagl::vm::exec {
         return command;
     }
 
+    lang::RawCommand constructCommand(lang::Operator op, lang::DirectionRegister operand1Register) {
+        lang::RawCommand command;
+        command.op = op;
+        command.operand1.directionReg = operand1Register;
+        return command;
+    }
+
     lang::RawCommand constructCommand(lang::Operator op, lang::CellCommandPointer operand1CellPointer) {
         lang::RawCommand command;
         command.op = op;
@@ -63,6 +71,17 @@ namespace eeagl::vm::exec {
         return command;
     }
 
+    lang::RawCommand constructCommand(lang::Operator op, lang::Reference operand1Ref,
+        lang::Reference operand2Ref, lang::Reference operand3Ref) {
+        lang::RawCommand command;
+        command.op = op;
+        command.operand1.reference = operand1Ref;
+        command.operand2.reference = operand2Ref;
+        command.operand3.reference = operand3Ref;
+        return command;
+    }
+
+
     lang::RawCommand constructCommand(lang::Operator op, lang::Register reg,
         lang::Number number, lang::CellCommandPointer operand3CellPointer) {
         lang::RawCommand command;
@@ -73,12 +92,17 @@ namespace eeagl::vm::exec {
         return command;
     }
 
-    lang::RawCommand constructCommand(lang::Operator op, lang::Register reg,
-        lang::Number number) {
+    lang::RawCommand constructCommand(lang::Operator op, lang::Register reg, lang::Number number) {
         lang::RawCommand command;
         command.op = op;
         command.operand1.reg = reg;
         command.operand2.number = number;
+        return command;
+    }
+
+    lang::RawCommand constructCommand(lang::Operator op) {
+        lang::RawCommand command;
+        command.op = op;
         return command;
     }
 
@@ -94,13 +118,6 @@ namespace eeagl::vm::exec {
         context->registers[reg] = lang::MAX_CELL_INDEX;
         executioner->execute(constructCommand(lang::Operator::Increment, reg));
         EXPECT_EQ(context->registers[reg], 0);
-    }
-
-    TEST_F(ExecutionTest, InrementAddsToContextInstructionPointer) {
-        EXPECT_EQ(context->ip.index, 0);
-        auto result = executioner->execute(constructCommand(lang::Operator::Increment, lang::Register::Register_1));
-        EXPECT_TRUE(result.success);
-        EXPECT_EQ(context->ip.index, 1);
     }
 
     TEST_F(ExecutionTest, JumpToInvalidGreaterAddress) {
@@ -151,13 +168,12 @@ namespace eeagl::vm::exec {
         context->registers[lang::Register::Register_1] = rightIndex;
         context->registers[lang::Register::Register_2] = downIndex;
 
-        dump->cells[0][1].commands[rightIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
+        auto command = constructCommand(lang::Operator::JumpIfEqualsRef,
             { lang::Direction::Same, lang::Register::Register_3 },
             { lang::Direction::Same, lang::Register::Register_3 }, 0);
 
-        dump->cells[1][0].commands[downIndex] = constructCommand(lang::Operator::JumpIfEqualsRef,
-            { lang::Direction::Same, lang::Register::Register_3 },
-            { lang::Direction::Same, lang::Register::Register_3 }, 0);
+        dump->cells[0][1].commands[rightIndex] = command;
+        dump->cells[1][0].commands[downIndex] = command;
 
         auto result = executioner->execute(
             constructCommand(
@@ -266,22 +282,94 @@ namespace eeagl::vm::exec {
 
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::NUMBER_IS_TOO_BIG);
+        EXPECT_EQ(context->registers[reg], contextBeforeTheCall.registers[reg]);
         EXPECT_EQ(context->ip.x, contextBeforeTheCall.ip.x);
         EXPECT_EQ(context->ip.y, contextBeforeTheCall.ip.y);
-        EXPECT_EQ(context->registers[reg], contextBeforeTheCall.registers[reg]);
         EXPECT_EQ(context->ip.index, contextBeforeTheCall.ip.index);
     }
 
     TEST_F(ExecutionTest, SetNumberSuccess) {
-        auto contextBeforeTheCall = *context;
         auto reg = lang::Register::Register_1;
         auto number = lang::MAX_NUMBER - 1;
         auto result = executioner->execute(constructCommand(lang::Operator::Set, reg, number));
 
         EXPECT_TRUE(result.success);
-        EXPECT_EQ(context->ip.x, contextBeforeTheCall.ip.x);
-        EXPECT_EQ(context->ip.y, contextBeforeTheCall.ip.y);
         EXPECT_EQ(context->registers[reg], number);
-        EXPECT_EQ(context->ip.index, contextBeforeTheCall.ip.index + 1);
+    }
+
+    TEST_F(ExecutionTest, SetRandomDirection) {
+        auto reg = lang::DirectionRegister::Directional_Register_1;
+        context->directionRegisters[reg] = (lang::Direction)-1;
+        auto result = executioner->execute(constructCommand(lang::Operator::SetRandomDirection, reg));
+
+        EXPECT_TRUE(result.success);
+        EXPECT_NE(lang::DIRECTIONS.find(context->directionRegisters[reg]), lang::DIRECTIONS.end());
+    }
+
+    TEST_F(ExecutionTest, StopGoesToTheRight) {
+        auto contextBeforeTheCall = *context;
+        auto result = executioner->execute(constructCommand(lang::Operator::Stop));
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(context->ip, *contextBeforeTheCall.ip.neighborCell(lang::Direction::Right));
+    }
+
+    TEST_F(ExecutionTest, StopGoesDown) {
+        context->ip.x = dump->cells[0].size() - 1;
+        auto contextBeforeTheCall = *context;
+        auto result = executioner->execute(constructCommand(lang::Operator::Stop));
+        EXPECT_TRUE(result.success);
+        auto expectedAddr = *contextBeforeTheCall.ip.neighborCell(lang::Direction::Down);
+        expectedAddr.x = 0;
+        EXPECT_EQ(context->ip, expectedAddr);
+    }
+
+    TEST_F(ExecutionTest, StopExecutionStops) {
+        context->ip.x = dump->cells[0].size() - 1;
+        context->ip.y = dump->cells.size() - 1;
+        auto contextBeforeTheCall = *context;
+        auto result = executioner->execute(constructCommand(lang::Operator::Stop));
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, Executioner::ExecutionResult::END_OF_CODE);
+    }
+
+    void testIPIncremented(vm::exec::Context& context, std::function<void()> action) {
+        auto oldIP = context.ip;
+        action();
+        auto newIP = context.ip;
+        EXPECT_EQ(newIP.x, oldIP.x);
+        EXPECT_EQ(newIP.y, oldIP.y);
+        EXPECT_EQ(newIP.index, oldIP.index + 1);
+    }
+
+    TEST_F(ExecutionTest, SetIncrementsIPOnSuccess) {
+        testIPIncremented(*context, [this]() {
+            executioner->execute(constructCommand(lang::Operator::Set, lang::Register::Register_1, 0));
+        });
+    }
+
+    TEST_F(ExecutionTest, InrementIncrementsIPOnSuccess) {
+        testIPIncremented(*context, [this]() {
+            executioner->execute(constructCommand(lang::Operator::Increment, lang::Register::Register_1));
+        });
+    }
+
+    TEST_F(ExecutionTest, SetRandomDirectionIncrementsIP) {
+        testIPIncremented(*context, [this]() {
+            executioner->execute(constructCommand(lang::Operator::SetRandomDirection, 
+                lang::DirectionRegister::Directional_Register_1));
+        });
+    }
+
+    TEST_F(ExecutionTest, SwapIfEqualsIncrementsIPOnSuccess) {
+        testIPIncremented(*context, [this]() {
+            auto reg = lang::Register::Register_3;
+            context->registers[reg] = 0;
+            auto command = constructCommand(lang::Operator::SwapIfEquals,
+                { lang::Direction::Same, reg },
+                { lang::Direction::Same, reg }, 
+                { lang::Direction::Same, reg });
+
+            executioner->execute(command);
+        });
     }
 }

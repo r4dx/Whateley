@@ -1,5 +1,7 @@
 #include "execution.h"
 #include "vm/lang/command.h"
+#include "util/random.h"
+#include "vm/lang/types.h"
 
 #include <unordered_map>
 
@@ -120,12 +122,19 @@ namespace eeagl::vm::exec {
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SetRandomDirection>(
         const lang::RawCommand& command) {
-
+        context.directionRegisters[command.operand1.directionReg] = *util::random::random(lang::DIRECTIONS);
+        ++context.ip;
         return { true };
     }
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Stop>(const lang::RawCommand& command) {
+        context.ip = *context.ip.neighborCell(lang::Direction::Right);
+        if (context.ip.x == 0) {
+            context.ip = *context.ip.neighborCell(lang::Direction::Down);
+            if (context.ip.y == 0)
+                return { false, Executioner::ExecutionResult::END_OF_CODE };
+        }
         return { true };
     }
 

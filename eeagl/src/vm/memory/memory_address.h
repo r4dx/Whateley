@@ -13,7 +13,6 @@ namespace eeagl::vm::memory {
         lang::CellCommandPointer index;
 
 		MemoryAddress(int x, int y, lang::CellCommandPointer index, int dimX, int dimY, int dimZ);
-		MemoryAddress(std::tuple<int, int, lang::CellCommandPointer> addr, std::tuple<int, int, int> dimensions);
 
 		bool operator==(const MemoryAddress& rhs) const;
 		bool operator!=(const MemoryAddress& rhs) const;
