@@ -149,6 +149,7 @@ namespace eeagl::vm::exec {
     }
 
     TEST_F(ExecutionTest, JumpIfEqualsRefInvalidAddress) {
+        auto expected = context->ip;
         auto result = executioner->execute(
             constructCommand(
                 lang::Operator::JumpIfEqualsRef,
@@ -157,6 +158,7 @@ namespace eeagl::vm::exec {
                 lang::MAX_CELL_INDEX + 1));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
+        EXPECT_EQ(expected, context->ip);
     }
 
     TEST_F(ExecutionTest, JumpIfEqualsRefEqual) {
@@ -219,6 +221,7 @@ namespace eeagl::vm::exec {
     }
 
     TEST_F(ExecutionTest, JumpIfEqualsRegInvalidAddress) {
+        auto expected = context->ip;
         auto result = executioner->execute(
             constructCommand(
                 lang::Operator::JumpIfEqualsReg,
@@ -227,9 +230,11 @@ namespace eeagl::vm::exec {
                 lang::MAX_CELL_INDEX + 1));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::INVALID_ADDRESS);
+        EXPECT_EQ(expected, context->ip);
     }
 
     TEST_F(ExecutionTest, JumpIfEqualsRegNumberTooBig) {
+        auto expected = context->ip;
         auto result = executioner->execute(
             constructCommand(
                 lang::Operator::JumpIfEqualsReg,
@@ -238,6 +243,7 @@ namespace eeagl::vm::exec {
                 0));
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::NUMBER_IS_TOO_BIG);
+        EXPECT_EQ(expected, context->ip);
     }
 
     TEST_F(ExecutionTest, JumpIfEqualsRegEqual) {
@@ -283,9 +289,7 @@ namespace eeagl::vm::exec {
         EXPECT_FALSE(result.success);
         EXPECT_EQ(result.error, exec::Executioner::ExecutionResult::Error::NUMBER_IS_TOO_BIG);
         EXPECT_EQ(context->registers[reg], contextBeforeTheCall.registers[reg]);
-        EXPECT_EQ(context->ip.x, contextBeforeTheCall.ip.x);
-        EXPECT_EQ(context->ip.y, contextBeforeTheCall.ip.y);
-        EXPECT_EQ(context->ip.index, contextBeforeTheCall.ip.index);
+        EXPECT_EQ(context->ip, contextBeforeTheCall.ip);
     }
 
     TEST_F(ExecutionTest, SetNumberSuccess) {
