@@ -15,6 +15,7 @@ namespace eeagl::vm::lang {
         Jump,
         SetRandomDirection,
         SwapIfEquals,
+        SwapCell,
         Stop
     };
 

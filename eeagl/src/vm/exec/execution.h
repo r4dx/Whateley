@@ -71,5 +71,8 @@ namespace eeagl::vm::exec {
 
         template <>
         ExecutionResult execute<lang::Operator::SwapIfEquals>(const lang::RawCommand& command);
+
+        template <>
+        ExecutionResult execute<lang::Operator::SwapCell>(const lang::RawCommand& command);
     };
 }

@@ -81,6 +81,7 @@ namespace eeagl::vm::lang {
         { Jump, { Jump, TypeCellCommandPointer, NonExistent, NonExistent } },
         { SetRandomDirection, { SetRandomDirection, TypeDirectionRegister, NonExistent, NonExistent } },
         { SwapIfEquals, { SwapIfEquals, TypeReference, TypeReference, TypeReference } },
+        { SwapCell,{ SwapCell, TypeDirectionRegister, TypeRegister, NonExistent } },
         { Stop, { Stop, NonExistent, NonExistent, NonExistent } }
     };
 

@@ -29,6 +29,7 @@ namespace eeagl::vm::exec {
         bindExecute<lang::Operator::SetRandomDirection>();
         bindExecute<lang::Operator::Stop>();
         bindExecute<lang::Operator::SwapIfEquals>();
+        bindExecute<lang::Operator::SwapCell>();
     }
 
     template <lang::Operator Operator>
@@ -142,6 +143,12 @@ namespace eeagl::vm::exec {
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapIfEquals>(const lang::RawCommand& command) {
         return { true };
     }
+
+    template <>
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapCell>(const lang::RawCommand& command) {
+        return { true };
+    }
+
 
     Executioner::ExecutionResult Executioner::execute(const lang::RawCommand& command) {
         if (bindings.find(command.op) == bindings.end())
