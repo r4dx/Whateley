@@ -31,10 +31,16 @@ namespace eeagl::vm::memory {
         lang::RawCommand value;
     };
 
+    struct SwapResult {
+        bool succeed;
+        Error error;
+    };
+
     class Memory {
     public:
         MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
         DereferenceResult dereference(MemoryAddress address) const;
+        SwapResult swap(MemoryAddress address_1, MemoryAddress address_2);
         Memory(const std::shared_ptr<MemoryDump> dump);
     private:
         std::shared_ptr<MemoryDump> dump;
