@@ -141,6 +141,24 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapIfEquals>(const lang::RawCommand& command) {
+        auto dereferenceResult = context.memory.dereference(getAddress(command.operand1.reference));
+        if (!dereferenceResult.succeed)
+            return { false, ExecutionResult::Error::DEREFERENCE_ERROR };
+        auto op1Value = dereferenceResult.value;
+
+        dereferenceResult = context.memory.dereference(getAddress(command.operand2.reference));
+        if (!dereferenceResult.succeed)
+            return { false, ExecutionResult::Error::DEREFERENCE_ERROR };
+        auto op2Value = dereferenceResult.value;
+
+        if (op1Value == op2Value) {
+            auto result = context.memory.swap(getAddress(command.operand1.reference), getAddress(command.operand3.reference));
+            if (!result.succeed)
+                return { false, ExecutionResult::Error::SWAP_ERROR };
+        }
+
+        ++context.ip;
+
         return { true };
     }
 

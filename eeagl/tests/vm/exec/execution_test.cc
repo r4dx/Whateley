@@ -336,6 +336,93 @@ namespace eeagl::vm::exec {
         EXPECT_EQ(result.error, Executioner::ExecutionResult::END_OF_CODE);
     }
 
+    void testSwapDereferenceError(vm::exec::Context& context, 
+        Executioner& executioner, int corruptedParameterIndex, Executioner::ExecutionResult::Error expectedError) {
+
+        EXPECT_LE(corruptedParameterIndex, 2);
+        EXPECT_GE(corruptedParameterIndex, 0);
+        auto expected = context.ip;
+        auto corruptedReg = lang::Register::Register_1;
+        auto reg = lang::Register::Register_2;
+        context.registers[corruptedReg] = lang::MAX_CELL_INDEX + 1;
+        auto result = executioner.execute(
+            constructCommand(
+                lang::Operator::SwapIfEquals,
+                { lang::Direction::Same, corruptedParameterIndex == 0 ? corruptedReg : reg },
+                { lang::Direction::Same, corruptedParameterIndex == 1 ? corruptedReg : reg },
+                { lang::Direction::Same, corruptedParameterIndex == 2 ? corruptedReg : reg }));
+        EXPECT_FALSE(result.success);
+        EXPECT_EQ(result.error, expectedError);
+        EXPECT_EQ(expected, context.ip);
+    }
+
+    TEST_F(ExecutionTest, SwapIfEqualsInvalidAddress1) {
+        testSwapDereferenceError(*context, *executioner, 0, exec::Executioner::ExecutionResult::Error::DEREFERENCE_ERROR);
+    }
+
+    TEST_F(ExecutionTest, SwapIfEqualsInvalidAddress2) {
+        testSwapDereferenceError(*context, *executioner, 1, exec::Executioner::ExecutionResult::Error::DEREFERENCE_ERROR);
+    }
+
+    TEST_F(ExecutionTest, SwapIfEqualsInvalidAddress3) {
+        testSwapDereferenceError(*context, *executioner, 2, exec::Executioner::ExecutionResult::Error::SWAP_ERROR);
+    }
+
+    TEST_F(ExecutionTest, SwapIfEqualsDoesntSwapWhenDifferent) {
+        auto compareAndSwapReg = lang::Register::Register_1;
+        auto compareReg = lang::Register::Register_2;
+        auto swapReg = lang::Register::Register_3;
+        context->registers[compareAndSwapReg] = 0;
+        context->registers[compareReg] = 1;
+        context->registers[swapReg] = 2;
+
+        auto expectedCompareAndSwapCommand = constructCommand(vm::lang::Operator::Stop);
+        auto expectedSwapCommand = constructCommand(vm::lang::Operator::Increment,
+            vm::lang::Register::Register_1);
+
+        dump->cells[0][0].commands[context->registers[compareAndSwapReg]] = expectedCompareAndSwapCommand;
+        dump->cells[0][0].commands[context->registers[compareReg]] = constructCommand(vm::lang::Operator::Jump, 1);
+        dump->cells[0][0].commands[context->registers[swapReg]] = expectedSwapCommand;
+
+        auto result = executioner->execute(
+            constructCommand(
+                lang::Operator::SwapIfEquals,
+                { lang::Direction::Same, compareAndSwapReg },
+                { lang::Direction::Same, compareReg },
+                { lang::Direction::Same, swapReg }));
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(dump->cells[0][0].commands[context->registers[compareAndSwapReg]], expectedCompareAndSwapCommand);
+        EXPECT_EQ(dump->cells[0][0].commands[context->registers[swapReg]], expectedSwapCommand);
+    }
+
+    TEST_F(ExecutionTest, SwapIfEqualsSwapsWhenEqual) {
+        auto compareAndSwapReg = lang::Register::Register_1;
+        auto compareReg = lang::Register::Register_2;
+        auto swapReg = lang::Register::Register_3;
+        context->registers[compareAndSwapReg] = 0;
+        context->registers[compareReg] = 1;
+        context->registers[swapReg] = 2;
+
+        auto expectedCompareAndSwapCommand = constructCommand(vm::lang::Operator::Stop);
+        auto expectedSwapCommand = constructCommand(vm::lang::Operator::Increment,
+            vm::lang::Register::Register_1);
+
+        dump->cells[0][0].commands[context->registers[compareAndSwapReg]] = expectedCompareAndSwapCommand;
+        dump->cells[0][0].commands[context->registers[compareReg]] = expectedCompareAndSwapCommand;
+        dump->cells[0][0].commands[context->registers[swapReg]] = expectedSwapCommand;
+
+        auto result = executioner->execute(
+            constructCommand(
+                lang::Operator::SwapIfEquals,
+                { lang::Direction::Same, compareAndSwapReg },
+                { lang::Direction::Same, compareReg },
+                { lang::Direction::Same, swapReg }));
+        EXPECT_TRUE(result.success);
+        EXPECT_EQ(dump->cells[0][0].commands[context->registers[compareAndSwapReg]], expectedSwapCommand);
+        EXPECT_EQ(dump->cells[0][0].commands[context->registers[swapReg]], expectedCompareAndSwapCommand);
+    }
+
+
     void testIPIncremented(vm::exec::Context& context, std::function<void()> action) {
         auto oldIP = context.ip;
         action();
@@ -364,7 +451,7 @@ namespace eeagl::vm::exec {
         });
     }
 
-    TEST_F(ExecutionTest, SwapIfEqualsIncrementsIPOnSuccess) {
+    TEST_F(ExecutionTest, SwapIfEqualsIncrementsIPOnEquals) {
         testIPIncremented(*context, [this]() {
             auto reg = lang::Register::Register_3;
             context->registers[reg] = 0;
@@ -376,4 +463,22 @@ namespace eeagl::vm::exec {
             executioner->execute(command);
         });
     }
+
+    TEST_F(ExecutionTest, SwapIfEqualsIncrementsIPOnNonEquals) {
+        testIPIncremented(*context, [this]() {
+            auto reg = lang::Register::Register_3;
+            auto reg1 = lang::Register::Register_1;
+            context->registers[reg] = 0;
+            context->registers[reg1] = 1;
+            dump->cells[0][0].commands[context->registers[reg]] = constructCommand(lang::Operator::Set, reg, 2);
+            dump->cells[0][0].commands[context->registers[reg1]] = constructCommand(lang::Operator::Set, reg, 1);
+            auto command = constructCommand(lang::Operator::SwapIfEquals,
+                { lang::Direction::Same, reg },
+                { lang::Direction::Same, reg1 },
+                { lang::Direction::Same, reg });
+
+            executioner->execute(command);
+        });
+    }
+
 }

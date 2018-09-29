@@ -25,6 +25,7 @@ namespace eeagl::vm::exec {
                 INVALID_ADDRESS,
                 UNKNOWN_OPERATOR,
                 DEREFERENCE_ERROR,
+                SWAP_ERROR,
                 NUMBER_IS_TOO_BIG,
                 END_OF_CODE
             } error;
