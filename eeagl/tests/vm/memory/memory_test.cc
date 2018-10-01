@@ -73,4 +73,16 @@ namespace eeagl::vm::memory {
         EXPECT_EQ(dump->cells[address_1.y][address_1.x].commands[address_1.index], command_2);
         EXPECT_EQ(dump->cells[address_2.y][address_2.x].commands[address_2.index], command_1);
     }
+    
+    TEST_F(MemoryTest, SwapBlocksTilEndCommonCase) {
+        EXPECT_TRUE(false);
+    }
+
+    TEST_F(MemoryTest, SwapBlocksTilInvalidAddress1) {
+        EXPECT_TRUE(false);
+    }
+
+    TEST_F(MemoryTest, SwapBlocksTilInvalidAddress2) {
+        EXPECT_TRUE(false);
+    }
 }

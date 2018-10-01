@@ -12,7 +12,10 @@
 
 namespace eeagl::vm::memory {
 
-    enum Error { NONE, INVALID_ADDRESS };
+    enum Error { 
+        NONE, 
+        INVALID_ADDRESS
+    };
 
     struct GetCellResult {
         bool succeed;
@@ -41,6 +44,7 @@ namespace eeagl::vm::memory {
         MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
         DereferenceResult dereference(MemoryAddress address) const;
         SwapResult swap(MemoryAddress address_1, MemoryAddress address_2);
+        SwapResult swapCellBlocksTilEnd(MemoryAddress address_1, MemoryAddress address_2);
         Memory(const std::shared_ptr<MemoryDump> dump);
     private:
         std::shared_ptr<MemoryDump> dump;
