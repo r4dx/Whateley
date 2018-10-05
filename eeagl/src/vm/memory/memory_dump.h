@@ -5,7 +5,7 @@
 #include <ostream>
 #include <vector>
 #include <memory>
-#include "vm/lang/command.h"
+#include "vm/lang/command/command.h"
 #include "memory_address.h"
 
 namespace eeagl::vm::memory {
@@ -37,7 +37,7 @@ namespace eeagl::vm::memory {
 
     struct MemoryDump {
         MemoryDumpHeader header;
-        std::vector< std::vector < lang::Cell > > cells;
+        std::vector< std::vector < lang::command::Cell > > cells;
 		MemoryAddress toAddress(int x, int y, lang::CellCommandPointer index) const;
         bool isCompatible(MemoryAddress address) const;
 

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "generator/generator.h"
-#include "vm/lang/command_structure.h"
-#include "vm/lang/command.h"
+#include "vm/lang/command/structure.h"
+#include "vm/lang/command/command.h"
 
 #include <vector>
 #include <functional>
@@ -64,18 +64,18 @@ namespace eeagl::generator {
             ASSERT_EQ(col.size(), params.xDimension);
     }
 
-    void decrementOnOperandType(vm::lang::OperandType operandType, int& unusedDirections,
+    void decrementOnOperandType(vm::lang::command::OperandType operandType, int& unusedDirections,
         int& unusedDirectionRegisters, int& unusedRegisters) {
         switch (operandType) {
-        case vm::lang::OperandType::TypeDirectionRegister:
+        case vm::lang::command::OperandType::TypeDirectionRegister:
             if (unusedDirectionRegisters > 0)
                 unusedDirectionRegisters--;
             break;
-        case vm::lang::OperandType::TypeRegister:
+        case vm::lang::command::OperandType::TypeRegister:
             if (unusedRegisters > 0)
                 unusedRegisters--;
             break;
-        case vm::lang::OperandType::TypeReference:
+        case vm::lang::command::OperandType::TypeReference:
             if (unusedDirections > 0)
                 unusedDirections--;
 
@@ -90,7 +90,7 @@ namespace eeagl::generator {
         int unusedDirectionRegisters = vm::lang::DIRECTION_REGISTERS.size();
         int unusedRegisters = vm::lang::REGISTERS.size();
 
-        for (auto kv : vm::lang::COMMAND_STRUCTURE) {
+        for (auto kv : vm::lang::command::COMMAND_STRUCTURE) {
             decrementOnOperandType(kv.second.operand1, unusedDirections, unusedDirectionRegisters, unusedRegisters);
             decrementOnOperandType(kv.second.operand2, unusedDirections, unusedDirectionRegisters, unusedRegisters);
             decrementOnOperandType(kv.second.operand3, unusedDirections, unusedDirectionRegisters, unusedRegisters);
@@ -121,8 +121,8 @@ namespace eeagl::generator {
         ASSERT_EQ(result.error, GenerateResult::Error::NOT_ENOUGH_SLOTS);
     }
 
-    void testAtLeastOneAndExpected(std::set<vm::lang::Operator> operators, vm::lang::Cell& cell,
-        std::function<void(vm::lang::RawCommand)> assertion) {
+    void testAtLeastOneAndExpected(std::set<vm::lang::Operator> operators, vm::lang::command::Cell& cell,
+        std::function<void(vm::lang::command::RawCommand)> assertion) {
         bool atLeastOne = false;
         for (auto command : cell.commands)
             if (operators.find(command.op) != operators.end()) {
@@ -139,7 +139,7 @@ namespace eeagl::generator {
         MemoryDumpGenerator generator(params);
         GenerateResult result = generator.generateRandom();
         ASSERT_TRUE(result.succeed);
-        vm::lang::Cell cell = result.result->cells[0][0];
+        vm::lang::command::Cell cell = result.result->cells[0][0];
 
         for (auto command : cell.commands)
             ASSERT_NE(params.operators.find(command.op), params.operators.end());
@@ -154,7 +154,7 @@ namespace eeagl::generator {
         MemoryDumpGenerator generator(params);
         GenerateResult result = generator.generateRandom();
         ASSERT_TRUE(result.succeed);
-        vm::lang::Cell cell = result.result->cells.at(0).at(0);
+        vm::lang::command::Cell cell = result.result->cells.at(0).at(0);
 
         testAtLeastOneAndExpected(params.operators, cell,
             [&params](auto command) {
@@ -190,7 +190,7 @@ namespace eeagl::generator {
         MemoryDumpGenerator generator(params);
         GenerateResult result = generator.generateRandom();
         ASSERT_TRUE(result.succeed);
-        vm::lang::Cell cell = result.result->cells.at(0).at(0);
+        vm::lang::command::Cell cell = result.result->cells.at(0).at(0);
 
         testAtLeastOneAndExpected(params.operators, cell,
             [&params](auto command) {
@@ -205,7 +205,7 @@ namespace eeagl::generator {
         MemoryDumpGenerator generator(params);
         GenerateResult result = generator.generateRandom();
         ASSERT_TRUE(result.succeed);
-        vm::lang::Cell cell = result.result->cells.at(0).at(0);
+        vm::lang::command::Cell cell = result.result->cells.at(0).at(0);
 
         testAtLeastOneAndExpected(params.operators, cell, 
             [&params](auto command) {

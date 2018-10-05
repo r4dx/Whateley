@@ -30,10 +30,10 @@ namespace eeagl::generator {
 
     template <typename T>
     bool MemoryDumpGenerator::addCommandsForOperandUntilNonRemaining(std::set<T>& set, 
-        std::optional<vm::lang::OperandType> operandType) {
+        std::optional<vm::lang::command::OperandType> operandType) {
 
         if (!operandType.has_value())
-            operandType = vm::lang::OperandToOperandType<T>();
+            operandType = vm::lang::command::OperandToOperandType<T>();
 
         while (set.size() > 0) {
             auto command = getCommandForOperand(*operandType);
@@ -63,8 +63,8 @@ namespace eeagl::generator {
         result.result->header.signature = vm::memory::MemoryDumpHeader::SIGNATURE;
         result.result->header.version = vm::memory::MemoryDumpHeader::CURRENT_VERSION;
             
-        result.result->cells = std::vector< std::vector < vm::lang::Cell > >(parameters.yDimension, 
-            std::vector<vm::lang::Cell>(parameters.xDimension, vm::lang::Cell()));
+        result.result->cells = std::vector< std::vector < vm::lang::command::Cell > >(parameters.yDimension, 
+            std::vector<vm::lang::command::Cell>(parameters.xDimension, vm::lang::command::Cell()));
 
         commandSlots = parameters.yDimension * parameters.xDimension * vm::lang::CELL_SIZE;
 
@@ -76,7 +76,7 @@ namespace eeagl::generator {
 
         while (remainingOperators.size() > 0) {
             auto commandOp = *(getRandom<vm::lang::Operator>(remainingOperators, parameters.operators));
-            auto structure = vm::lang::COMMAND_STRUCTURE.at(commandOp);
+            auto structure = vm::lang::command::COMMAND_STRUCTURE.at(commandOp);
             auto commandResult = getRandomCommand(structure);
             if (!commandResult.has_value()) {
                 result.error = GenerateResult::Error::NO_OPERAND_FOR_OPERATOR;
@@ -88,7 +88,7 @@ namespace eeagl::generator {
         if (!addCommandsForOperandUntilNonRemaining<vm::lang::Register>(remainingRegisters) || 
             !addCommandsForOperandUntilNonRemaining<vm::lang::DirectionRegister>(remainingDirectionRegisters) ||
             !addCommandsForOperandUntilNonRemaining<vm::lang::Direction>(remainingDirections, 
-                vm::lang::OperandType::TypeReference)) {
+                vm::lang::command::OperandType::TypeReference)) {
 
             result.error = GenerateResult::Error::NO_OPERATOR_FOR_OPERAND;
             return result;
@@ -108,7 +108,7 @@ namespace eeagl::generator {
             int flatCoords = unusedIndices.at(firstUnusedIndex++);
             auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, 
 				parameters.yDimension, vm::lang::CELL_SIZE);
-            vm::lang::RawCommand command = commandsToAdd[0];
+            vm::lang::command::RawCommand command = commandsToAdd[0];
             commandsToAdd.erase(commandsToAdd.begin());
             result.result->cells[coords.y][coords.x].commands[coords.index] = command;
         }
@@ -118,7 +118,7 @@ namespace eeagl::generator {
             auto coords = vm::memory::MemoryAddress::fromFlatIndex(flatCoords, parameters.xDimension, 
 				parameters.yDimension, vm::lang::CELL_SIZE);
             auto commandOp = *(util::random::random<vm::lang::Operator>(parameters.operators));
-            auto commandResult = getRandomCommand(vm::lang::COMMAND_STRUCTURE.at(commandOp));
+            auto commandResult = getRandomCommand(vm::lang::command::COMMAND_STRUCTURE.at(commandOp));
             if (!commandResult.has_value()) {
                 result.error = GenerateResult::Error::NO_OPERAND_FOR_OPERATOR;
                 return result;
@@ -130,14 +130,14 @@ namespace eeagl::generator {
         return result;
     }
 
-    std::optional<vm::lang::RawCommand> MemoryDumpGenerator::getRandomCommand(vm::lang::CommandStructure structure) {
+    std::optional<vm::lang::command::RawCommand> MemoryDumpGenerator::getRandomCommand(vm::lang::command::CommandStructure structure) {
         auto operand1Result = getRandomOperand(structure.operand1);
         auto operand2Result = getRandomOperand(structure.operand2);
         auto operand3Result = getRandomOperand(structure.operand3);
         if (!operand1Result.has_value() || !operand2Result.has_value() || !operand3Result.has_value()) {
             return std::nullopt;
         }
-        vm::lang::RawCommand command;
+        vm::lang::command::RawCommand command;
         command.op = structure.op;
         command.operand1 = *operand1Result;
         command.operand2 = *operand2Result;
@@ -145,7 +145,7 @@ namespace eeagl::generator {
         return command;
     }
 
-    std::optional<vm::lang::Operand> MemoryDumpGenerator::getRandomOperand(vm::lang::OperandType type) {
+    std::optional<vm::lang::Operand> MemoryDumpGenerator::getRandomOperand(vm::lang::command::OperandType type) {
         vm::lang::Operand result;
         result.number = 0;
 
@@ -153,11 +153,11 @@ namespace eeagl::generator {
         std::uniform_int_distribution<int> numberUD(vm::lang::MIN_NUMBER, vm::lang::MAX_NUMBER - 1);
 
         switch (type) {
-        case vm::lang::OperandType::TypeCellCommandPointer: {
+        case vm::lang::command::OperandType::TypeCellCommandPointer: {
             result.cellCommandPointer = pointerUD(engine);
             break;
         }
-        case vm::lang::OperandType::TypeDirectionRegister: {
+        case vm::lang::command::OperandType::TypeDirectionRegister: {
             auto dirReg = getRandom<vm::lang::DirectionRegister>(
                 remainingDirectionRegisters, parameters.directionRegisters);
             if (!dirReg.has_value())
@@ -166,11 +166,11 @@ namespace eeagl::generator {
             result.directionReg = *dirReg;
             break;
         }
-        case vm::lang::OperandType::TypeNumber: {
+        case vm::lang::command::OperandType::TypeNumber: {
             result.number = numberUD(engine);
             break;
         }
-        case vm::lang::OperandType::TypeReference: {
+        case vm::lang::command::OperandType::TypeReference: {
             auto dir = getRandom<vm::lang::Direction>(remainingDirections, parameters.directions);
             if (!dir.has_value())
                 return std::nullopt;
@@ -183,7 +183,7 @@ namespace eeagl::generator {
             result.reference.reg = *reg;
             break;
         }
-        case vm::lang::OperandType::TypeRegister: {
+        case vm::lang::command::OperandType::TypeRegister: {
             auto randomReg = getRandom<vm::lang::Register>(remainingRegisters, parameters.registers);
             if (!randomReg.has_value())
                 return std::nullopt;
@@ -197,28 +197,28 @@ namespace eeagl::generator {
     }
 
     int MemoryDumpGenerator::getOperatorWeight(vm::lang::Operator op) {
-        auto structure = vm::lang::COMMAND_STRUCTURE.at(op);
+        auto structure = vm::lang::command::COMMAND_STRUCTURE.at(op);
         return getOperandWeight(structure.operand1) + getOperandWeight(structure.operand2) +
             getOperandWeight(structure.operand3);
     }
 
-    int MemoryDumpGenerator::getOperandWeight(vm::lang::OperandType operandType) {
+    int MemoryDumpGenerator::getOperandWeight(vm::lang::command::OperandType operandType) {
         switch (operandType) {
-        case vm::lang::OperandType::TypeDirectionRegister:
+        case vm::lang::command::OperandType::TypeDirectionRegister:
             return remainingDirectionRegisters.size();
-        case vm::lang::OperandType::TypeReference:
+        case vm::lang::command::OperandType::TypeReference:
             return remainingDirections.size() + remainingRegisters.size();
-        case vm::lang::OperandType::TypeRegister:
+        case vm::lang::command::OperandType::TypeRegister:
             return remainingRegisters.size();
         }
         return 0;
     }
 
-    std::optional<vm::lang::RawCommand> MemoryDumpGenerator::getCommandForOperand(vm::lang::OperandType operandType) {
-        std::multimap<int, vm::lang::CommandStructure> weightedCommandStructure;
+    std::optional<vm::lang::command::RawCommand> MemoryDumpGenerator::getCommandForOperand(vm::lang::command::OperandType operandType) {
+        std::multimap<int, vm::lang::command::CommandStructure> weightedCommandStructure;
         for (auto op : parameters.operators)
             weightedCommandStructure.insert(
-                std::make_pair(getOperatorWeight(op), vm::lang::COMMAND_STRUCTURE.at(op)));
+                std::make_pair(getOperatorWeight(op), vm::lang::command::COMMAND_STRUCTURE.at(op)));
             
         auto it = weightedCommandStructure.rbegin();
         while (it != weightedCommandStructure.rend()) {
@@ -227,10 +227,10 @@ namespace eeagl::generator {
             if (structure.operand1 == operandType ||
                 structure.operand2 == operandType ||
                 structure.operand3 == operandType ||
-                (operandType == vm::lang::OperandType::TypeRegister && (
-                    structure.operand1 == vm::lang::OperandType::TypeReference ||
-                    structure.operand2 == vm::lang::OperandType::TypeReference ||
-                    structure.operand3 == vm::lang::OperandType::TypeReference
+                (operandType == vm::lang::command::OperandType::TypeRegister && (
+                    structure.operand1 == vm::lang::command::OperandType::TypeReference ||
+                    structure.operand2 == vm::lang::command::OperandType::TypeReference ||
+                    structure.operand3 == vm::lang::command::OperandType::TypeReference
                     ))) {
                 auto command = getRandomCommand(structure);
                 if (!command.has_value())

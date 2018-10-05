@@ -1,5 +1,5 @@
 #include "execution.h"
-#include "vm/lang/command.h"
+#include "vm/lang/command/command.h"
 #include "util/random.h"
 #include "vm/lang/types.h"
 
@@ -33,12 +33,12 @@ namespace eeagl::vm::exec {
     }
 
     template <lang::Operator Operator>
-    Executioner::ExecutionResult Executioner::execute(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute(const lang::command::RawCommand& command) {
         return { false, Executioner::ExecutionResult::Error::UNKNOWN_OPERATOR };
     }
 
     template <>
-    Executioner::ExecutionResult Executioner::execute<lang::Operator::Increment>(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::Increment>(const lang::command::RawCommand& command) {
         lang::Number value = context.registers[command.operand1.reg];
         value++;
         if (value > lang::MAX_CELL_INDEX)
@@ -50,7 +50,7 @@ namespace eeagl::vm::exec {
     }
 
     template <>
-    Executioner::ExecutionResult Executioner::execute<lang::Operator::Jump>(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::Jump>(const lang::command::RawCommand& command) {
         if (command.operand1.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
 
@@ -65,7 +65,7 @@ namespace eeagl::vm::exec {
     }
 
     template <>
-    Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsRef>(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsRef>(const lang::command::RawCommand& command) {
         if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
         
@@ -89,7 +89,7 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::JumpIfEqualsReg>(
-        const lang::RawCommand& command) {
+        const lang::command::RawCommand& command) {
 
         if (command.operand3.cellCommandPointer > lang::MAX_CELL_INDEX)
             return { false, ExecutionResult::Error::INVALID_ADDRESS };
@@ -109,7 +109,7 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::Set>(
-        const lang::RawCommand& command) {
+        const lang::command::RawCommand& command) {
 
         if (command.operand2.number > lang::MAX_NUMBER)
             return { false, ExecutionResult::Error::NUMBER_IS_TOO_BIG };
@@ -122,14 +122,14 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SetRandomDirection>(
-        const lang::RawCommand& command) {
+        const lang::command::RawCommand& command) {
         context.directionRegisters[command.operand1.directionReg] = *util::random::random(lang::DIRECTIONS);
         ++context.ip;
         return { true };
     }
 
     template <>
-    Executioner::ExecutionResult Executioner::execute<lang::Operator::Stop>(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::Stop>(const lang::command::RawCommand& command) {
         context.ip = *context.ip.neighborCell(lang::Direction::Right);
         if (context.ip.x == 0) {
             context.ip = *context.ip.neighborCell(lang::Direction::Down);
@@ -140,7 +140,7 @@ namespace eeagl::vm::exec {
     }
 
     template <>
-    Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapIfEquals>(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapIfEquals>(const lang::command::RawCommand& command) {
         auto dereferenceResult = context.memory.dereference(getAddress(command.operand1.reference));
         if (!dereferenceResult.succeed)
             return { false, ExecutionResult::Error::DEREFERENCE_ERROR };
@@ -163,12 +163,12 @@ namespace eeagl::vm::exec {
     }
 
     template <>
-    Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapCell>(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapCell>(const lang::command::RawCommand& command) {
         return { true };
     }
 
 
-    Executioner::ExecutionResult Executioner::execute(const lang::RawCommand& command) {
+    Executioner::ExecutionResult Executioner::execute(const lang::command::RawCommand& command) {
         if (bindings.find(command.op) == bindings.end())
             return { false, Executioner::ExecutionResult::Error::UNKNOWN_OPERATOR };
 

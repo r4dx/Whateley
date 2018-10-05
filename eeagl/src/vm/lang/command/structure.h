@@ -1,11 +1,11 @@
 #pragma once
 
-#include "types.h"
+#include "vm/lang/types.h"
 
 #include <unordered_map>
 #include <type_traits>
 
-namespace eeagl::vm::lang {
+namespace eeagl::vm::lang::command {
     enum OperandType {
         NonExistent,
         TypeNumber,

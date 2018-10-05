@@ -4,14 +4,14 @@
 
 #include "memory_dump_test.h"
 #include "vm/memory/memory.h"
-#include "vm/lang/command.h"
+#include "vm/lang/command/command.h"
 #include "vm/memory/serialization.h"
 
 #include <cereal/archives/portable_binary.hpp>
 
 namespace eeagl::vm::memory {
     std::shared_ptr<MemoryDump> MemoryDumpTest::createSimpleMemoryDump(int x, int y) {
-        auto cells = std::vector< std::vector <lang::Cell> >(y, std::vector <lang::Cell>(x, lang::Cell()));
+        auto cells = std::vector< std::vector <lang::command::Cell> >(y, std::vector <lang::command::Cell>(x, lang::command::Cell()));
         MemoryDump dump = { { MemoryDumpHeader::SIGNATURE, MemoryDumpHeader::CURRENT_VERSION }, cells };
         return std::make_shared<MemoryDump>(dump);
     }
@@ -22,8 +22,8 @@ namespace eeagl::vm::memory {
         int xDimension,
         int yDimension) {
 
-        std::vector < std::vector <lang::Cell> > cells(yDimension,
-            std::vector<lang::Cell>(xDimension, lang::Cell()));
+        std::vector < std::vector <lang::command::Cell> > cells(yDimension,
+            std::vector<lang::command::Cell>(xDimension, lang::command::Cell()));
 
         MemoryDump dump = { { signature, version }, cells };
         std::shared_ptr<std::stringstream> ss = std::make_shared<std::stringstream>();
@@ -90,7 +90,7 @@ namespace eeagl::vm::memory {
     TEST_F(MemoryDumpTest, WriteSucceed) {
         std::shared_ptr<MemoryDump> dump = createSimpleMemoryDump();
 
-        lang::RawCommand testCommand;
+        lang::command::RawCommand testCommand;
         testCommand.op = lang::Operator::Increment;
         testCommand.operand1.reg = lang::Register::Register_2;
         dump->cells[0][0].commands[0] = testCommand;

@@ -6,7 +6,7 @@
 #include <istream>
 #include <ostream>
 #include <tuple>
-#include "vm/lang/command.h"
+#include "vm/lang/command/command.h"
 #include "memory_dump.h"
 #include "memory_address.h"
 
@@ -20,7 +20,7 @@ namespace eeagl::vm::memory {
     struct GetCellResult {
         bool succeed;
         Error error;
-        std::shared_ptr<const lang::Cell> cell;
+        std::shared_ptr<const lang::command::Cell> cell;
     };
 
     struct SetMemoryResult {
@@ -31,7 +31,7 @@ namespace eeagl::vm::memory {
     struct DereferenceResult {
         bool succeed;
         Error error;
-        lang::RawCommand value;
+        lang::command::RawCommand value;
     };
 
     struct SwapResult {

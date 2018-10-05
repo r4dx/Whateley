@@ -1,6 +1,6 @@
-#include "command_structure.h"
+#include "structure.h"
 
-namespace eeagl::vm::lang {
+namespace eeagl::vm::lang::command {
 
     int operandChecksum(OperandType type, Operand operand) {
         switch (type) {

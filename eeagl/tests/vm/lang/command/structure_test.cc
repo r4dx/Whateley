@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
 
 #include "vm/lang/types.h"
-#include "vm/lang/command_structure.h"
+#include "vm/lang/command/structure.h"
 
-namespace eeagl::vm::lang {
+namespace eeagl::vm::lang::command {
     TEST(CommandStructureTest, OperandChecksumNumberEqual) {
         Operand operand;
         const int NUM = 33;

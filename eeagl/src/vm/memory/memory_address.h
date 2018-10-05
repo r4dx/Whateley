@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vm/lang/command.h"
+#include "vm/lang/command/command.h"
 #include <optional>
 #include <tuple>
 

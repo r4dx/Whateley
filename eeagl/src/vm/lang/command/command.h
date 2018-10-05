@@ -1,9 +1,9 @@
 #pragma once
 
-#include "types.h"
-#include "command_structure.h"
+#include "vm/lang/types.h"
+#include "structure.h"
 
-namespace eeagl::vm::lang {
+namespace eeagl::vm::lang::command {
     struct RawCommand {
         Operator op;
         Operand operand1;

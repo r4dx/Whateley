@@ -1,6 +1,6 @@
 #pragma once
-#include "vm/lang/command_structure.h"
-#include "vm/lang/command.h"
+#include "vm/lang/command/structure.h"
+#include "vm/lang/command/command.h"
 #include "vm/memory/memory_dump.h"
 #include "vm/memory/memory.h"
 
@@ -52,18 +52,18 @@ namespace eeagl::generator {
         std::set<vm::lang::Operator> remainingOperators;
         std::set<vm::lang::Register> remainingRegisters;
         std::set<vm::lang::DirectionRegister> remainingDirectionRegisters;
-        std::vector<vm::lang::RawCommand> commandsToAdd;
+        std::vector<vm::lang::command::RawCommand> commandsToAdd;
 
         unsigned int commandSlots;
 
-        std::optional<vm::lang::RawCommand> getCommandForOperand(vm::lang::OperandType operandType);
-        std::optional<vm::lang::Operand> getRandomOperand(vm::lang::OperandType type);
-        std::optional<vm::lang::RawCommand> getRandomCommand(vm::lang::CommandStructure structure);
+        std::optional<vm::lang::command::RawCommand> getCommandForOperand(vm::lang::command::OperandType operandType);
+        std::optional<vm::lang::Operand> getRandomOperand(vm::lang::command::OperandType type);
+        std::optional<vm::lang::command::RawCommand> getRandomCommand(vm::lang::command::CommandStructure structure);
         int getOperatorWeight(vm::lang::Operator op);
-        int getOperandWeight(vm::lang::OperandType operandType);
+        int getOperandWeight(vm::lang::command::OperandType operandType);
 
         template <typename T>
         bool addCommandsForOperandUntilNonRemaining(std::set<T>& set,
-            std::optional<vm::lang::OperandType> operandType = std::nullopt);
+            std::optional<vm::lang::command::OperandType> operandType = std::nullopt);
     };
 }
