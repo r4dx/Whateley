@@ -1,7 +1,8 @@
 #include "factory.h"
 
-namespace eeagl::vm::lang::command::factory {
+#include <vector>
 
+namespace eeagl::vm::lang::command::factory {
     RawCommand build(lang::Operator op, lang::Register operand1Register) {
         RawCommand command;
         command.op = op;

@@ -69,7 +69,45 @@ namespace eeagl::vm::memory {
             }
             return true;
         }
+        typedef std::initializer_list<std::tuple<lang::command::RawCommand, int>> Block;
 
+        void testSwapTilEndInvalidAddress(bool first) {
+            using namespace lang::command;
+
+            auto addr = memory->toAddress(1, 1, 5);
+            auto invalid_address = MemoryAddress(99, 0, 0, 100, 100, 100);
+
+            Block block = { { factory::build(lang::Operator::Stop), 5 },
+            { factory::build(lang::Operator::Increment, lang::Register::Register_1), 3 } };
+
+            fillWithCommands(addr, block);
+
+            auto result = memory->swapCellBlocksTilEnd(first ? invalid_address : addr, first ? addr : invalid_address);
+
+            EXPECT_FALSE(result.succeed);
+            EXPECT_EQ(result.error, Error::INVALID_ADDRESS);
+            EXPECT_TRUE(hasCommands(addr, block));
+
+        }
+
+        void testSwapTilEnd(MemoryAddress addr1, MemoryAddress addr2) {
+            using namespace lang::command;
+
+            Block block1 = { { factory::build(lang::Operator::Stop), 5 },
+                { factory::build(lang::Operator::Increment, lang::Register::Register_1), 3 } };
+
+            Block block2 = { { factory::build(lang::Operator::Jump, 1), 5 },
+                { factory::build(lang::Operator::Set, lang::Register::Register_2, 2), 3 } };
+
+            fillWithCommands(addr1, block1);
+            fillWithCommands(addr2, block2);
+
+            auto result = memory->swapCellBlocksTilEnd(addr1, addr2);
+
+            EXPECT_TRUE(result.succeed);
+            EXPECT_TRUE(hasCommands(addr1, block2));
+            EXPECT_TRUE(hasCommands(addr2, block1));
+        }
 
         std::shared_ptr<MemoryDump> dump;
         std::shared_ptr<Memory> memory;
@@ -121,44 +159,36 @@ namespace eeagl::vm::memory {
         EXPECT_EQ(dump->cells[address_1.y][address_1.x].commands[address_1.index], command_2);
         EXPECT_EQ(dump->cells[address_2.y][address_2.x].commands[address_2.index], command_1);
     }
-    
+
     TEST_F(MemoryTest, SwapBlocksTilEndCommonCaseFirstAddressBigger) {
-        using namespace lang::command;
-        typedef std::initializer_list<std::tuple<lang::command::RawCommand, int>> Block;
-
-        auto addr1 = memory->toAddress(0, 0, 10);
-        auto addr2 = memory->toAddress(1, 1, 5);
-
-        Block commandsBlock1 = { { factory::build(lang::Operator::Stop), 5 },
-            { factory::build(lang::Operator::Increment, lang::Register::Register_1), 3 } };
-
-        Block commandsBlock2 = { { factory::build(lang::Operator::Jump, 1), 5 },
-            { factory::build(lang::Operator::Set, lang::Register::Register_2, 2), 3 } };
-
-
-        fillWithCommands(addr1, commandsBlock1);
-        fillWithCommands(addr2, commandsBlock2);
-
-        auto result = memory->swapCellBlocksTilEnd(addr1, addr2);
-        EXPECT_TRUE(result.succeed);
-        EXPECT_TRUE(hasCommands(addr1, commandsBlock2));
-        EXPECT_TRUE(hasCommands(addr2, commandsBlock1));
+        testSwapTilEnd(memory->toAddress(0, 0, 10), memory->toAddress(1, 1, 5));
     }
 
     TEST_F(MemoryTest, SwapBlocksTilEndCommonCaseSecondAddressBigger) {
-        EXPECT_TRUE(false);
+        testSwapTilEnd(memory->toAddress(1, 1, 5), memory->toAddress(0, 0, 10));
     }
 
     TEST_F(MemoryTest, SwapBlocksTilEndSameAddresses) {
-        EXPECT_TRUE(false);
+        using namespace lang::command;
+
+        auto addr = memory->toAddress(1, 1, 5);
+        Block block = { { factory::build(lang::Operator::Stop), 5 },
+            { factory::build(lang::Operator::Increment, lang::Register::Register_1), 3 } };
+
+        fillWithCommands(addr, block);
+
+        auto result = memory->swapCellBlocksTilEnd(addr, addr);
+
+        EXPECT_TRUE(result.succeed);
+        EXPECT_TRUE(hasCommands(addr, block));
     }
 
 
     TEST_F(MemoryTest, SwapBlocksTilInvalidAddress1) {
-        EXPECT_TRUE(false);
+        testSwapTilEndInvalidAddress(true);
     }
 
     TEST_F(MemoryTest, SwapBlocksTilInvalidAddress2) {
-        EXPECT_TRUE(false);
+        testSwapTilEndInvalidAddress(false);
     }
 }
