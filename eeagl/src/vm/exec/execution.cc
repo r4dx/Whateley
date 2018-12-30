@@ -164,6 +164,20 @@ namespace eeagl::vm::exec {
 
     template <>
     Executioner::ExecutionResult Executioner::execute<lang::Operator::SwapCell>(const lang::command::RawCommand& command) {
+		auto direction = context.directionRegisters[command.operand1.directionReg];
+		auto cellToSwap = context.ip.neighborCell(direction);
+		if (!cellToSwap.has_value())
+			return { false, ExecutionResult::Error::INVALID_ADDRESS };
+
+		auto startFrom = context.registers[command.operand2.reg];
+		auto addr1 = context.memory.toAddress(context.ip.x, context.ip.y, startFrom);
+		auto addr2 = context.memory.toAddress(cellToSwap->x, cellToSwap->y, startFrom);
+		auto result = context.memory.swapCellBlocksTilEnd(addr1, addr2);
+		if (!result.succeed)
+			return { false, ExecutionResult::Error::SWAP_ERROR };
+
+		++context.ip;
+
         return { true };
     }
 

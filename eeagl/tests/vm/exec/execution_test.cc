@@ -423,4 +423,12 @@ namespace eeagl::vm::exec {
         });
     }
 
+	TEST_F(ExecutionTest, SwapCellIncrementsIPOnSuccess) {
+		EXPECT_TRUE(false);
+	}
+
+	TEST_F(ExecutionTest, SwapCellSwapsContentStartingFromOffsetAndLeavesOtherContentAsIs) {
+		EXPECT_TRUE(false);
+	}
+
 }
