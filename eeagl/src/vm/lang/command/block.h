@@ -1,4 +1,8 @@
 #pragma once
+
+#include <initializer_list>
+#include <tuple>
+
 #include "command.h"
 #include "vm/memory/memory_address.h"
 #include "vm/memory/memory_dump.h"
