@@ -424,7 +424,18 @@ namespace eeagl::vm::exec {
     }
 
 	TEST_F(ExecutionTest, SwapCellIncrementsIPOnSuccess) {
-		EXPECT_TRUE(false);
+        testIPIncremented(*context, [this]() {
+            auto dirReg = lang::DirectionRegister::Directional_Register_1;
+            auto reg = lang::Register::Register_1;
+
+            context->directionRegisters[dirReg] = lang::Direction::Same;
+            context->registers[reg] = 0;
+            auto command = lang::command::factory::build(lang::Operator::SwapCell,
+                dirReg, reg);
+
+            executioner->execute(command);
+    });
+		
 	}
 
 	TEST_F(ExecutionTest, SwapCellSwapsContentStartingFromOffsetAndLeavesOtherContentAsIs) {

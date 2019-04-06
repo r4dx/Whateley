@@ -17,6 +17,14 @@ namespace eeagl::vm::lang::command::factory {
         return command;
     }
 
+    RawCommand build(lang::Operator op, lang::DirectionRegister operand1Register, lang::Register operand2Register) {
+        RawCommand command;
+        command.op = op;
+        command.operand1.directionReg = operand1Register;
+        command.operand2.reg = operand2Register;
+        return command;
+    }
+
     RawCommand build(lang::Operator op, lang::CellCommandPointer operand1CellPointer) {
         RawCommand command;
         command.op = op;
