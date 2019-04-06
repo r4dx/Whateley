@@ -29,6 +29,8 @@ PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/memory/memory_dump.cc 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/types.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command/command.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command/block.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command/block.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command/structure.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command/structure.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/lang/command/factory.h

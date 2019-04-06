@@ -13,6 +13,8 @@
 #include "vm/memory/memory_dump.h"
 #include "vm/lang/command/command.h"
 #include "vm/lang/command/factory.h"
+#include "vm/lang/command/block.h"
+
 #include "memory_dump_test.h"
 
 namespace eeagl::vm::memory {
@@ -31,82 +33,42 @@ namespace eeagl::vm::memory {
             return memory->swap(address_1, address_2);
         }
 
-        int getCommandsCount(std::initializer_list<std::tuple<lang::command::RawCommand, int>> commandCounts) {
-            int count = 0;
-            for (auto commandCount : commandCounts)
-                count += std::get<1>(commandCount);
-            return count;
-        }
-
-        void fillWithCommands(MemoryAddress addr, 
-            std::initializer_list<std::tuple<lang::command::RawCommand, int>> commandCounts) {
-
-            assert(getCommandsCount(commandCounts) <= lang::CELL_SIZE - addr.index);
-            std::vector<lang::command::RawCommand> commands;
-
-            for (auto commandCount : commandCounts)
-                commands.insert(commands.end(), std::get<1>(commandCount), std::get<0>(commandCount));
-
-            int commandsIndex = addr.index;
-            for (auto command : commands)
-                dump->cells[addr.y][addr.x].commands[commandsIndex++] = command;
-                
-        }
-
-        bool hasCommands(MemoryAddress addr,
-            std::initializer_list<std::tuple<lang::command::RawCommand, int>> commandCounts) {
-
-            if (getCommandsCount(commandCounts) > lang::CELL_SIZE - addr.index)
-                return false;
-
-            int index = addr.index;
-            for (auto commandCount : commandCounts) {
-                for (int i = 0; i < std::get<1>(commandCount); i++) {
-                    if (dump->cells[addr.y][addr.x].commands[index] != std::get<0>(commandCount))
-                        return false;
-                    index++;
-                }
-            }
-            return true;
-        }
-        typedef std::initializer_list<std::tuple<lang::command::RawCommand, int>> Block;
-
         void testSwapTilEndInvalidAddress(bool first) {
             using namespace lang::command;
 
             auto addr = memory->toAddress(1, 1, 5);
             auto invalid_address = MemoryAddress(99, 0, 0, 100, 100, 100);
 
-            Block block = { { factory::build(lang::Operator::Stop), 5 },
+            block::Block block = { { factory::build(lang::Operator::Stop), 5 },
             { factory::build(lang::Operator::Increment, lang::Register::Register_1), 3 } };
 
-            fillWithCommands(addr, block);
+            block::fillWithCommands(*dump, addr, block);
 
             auto result = memory->swapCellBlocksTilEnd(first ? invalid_address : addr, first ? addr : invalid_address);
 
             EXPECT_FALSE(result.succeed);
             EXPECT_EQ(result.error, Error::INVALID_ADDRESS);
-            EXPECT_TRUE(hasCommands(addr, block));
+            EXPECT_TRUE(block::hasCommands(*dump, addr, block));
 
         }
 
         void testSwapTilEnd(MemoryAddress addr1, MemoryAddress addr2) {
             using namespace lang::command;
 
-            Block block1 = { { factory::build(lang::Operator::Stop), 5 },
+            block::Block block1 = { { factory::build(lang::Operator::Stop), 5 },
                 { factory::build(lang::Operator::Increment, lang::Register::Register_1), 3 } };
 
-            Block block2 = { { factory::build(lang::Operator::Jump, 1), 5 },
+            block::Block block2 = { { factory::build(lang::Operator::Jump, 1), 5 },
                 { factory::build(lang::Operator::Set, lang::Register::Register_2, 2), 3 } };
 
-            fillWithCommands(addr1, block1);
-            fillWithCommands(addr2, block2);
+            block::fillWithCommands(*dump, addr1, block1);
+            block::fillWithCommands(*dump, addr2, block2);
 
             auto result = memory->swapCellBlocksTilEnd(addr1, addr2);
 
             EXPECT_TRUE(result.succeed);
-            EXPECT_TRUE(hasCommands(addr1, block2));
-            EXPECT_TRUE(hasCommands(addr2, block1));
+            EXPECT_TRUE(block::hasCommands(*dump, addr1, block2));
+            EXPECT_TRUE(block::hasCommands(*dump, addr2, block1));
         }
 
         std::shared_ptr<MemoryDump> dump;
@@ -172,15 +134,15 @@ namespace eeagl::vm::memory {
         using namespace lang::command;
 
         auto addr = memory->toAddress(1, 1, 5);
-        Block block = { { factory::build(lang::Operator::Stop), 5 },
+        block::Block block = { { factory::build(lang::Operator::Stop), 5 },
             { factory::build(lang::Operator::Increment, lang::Register::Register_1), 3 } };
 
-        fillWithCommands(addr, block);
+        block::fillWithCommands(*dump, addr, block);
 
         auto result = memory->swapCellBlocksTilEnd(addr, addr);
 
         EXPECT_TRUE(result.succeed);
-        EXPECT_TRUE(hasCommands(addr, block));
+        EXPECT_TRUE(block::hasCommands(*dump, addr, block));
     }
 
 
