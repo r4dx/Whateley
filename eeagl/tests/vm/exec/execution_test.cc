@@ -2,6 +2,7 @@
 
 #include "vm/lang/command/command.h"
 #include "vm/lang/command/factory.h"
+#include "vm/lang/command/block.h"
 #include "vm/memory/memory.h"
 #include "vm/memory/memory_dump_test.h"
 #include "vm/exec/execution.h"
@@ -434,12 +435,41 @@ namespace eeagl::vm::exec {
                 dirReg, reg);
 
             executioner->execute(command);
-    });
-		
+    });	
 	}
 
 	TEST_F(ExecutionTest, SwapCellSwapsContentStartingFromOffsetAndLeavesOtherContentAsIs) {
-		EXPECT_TRUE(false);
-	}
+        using namespace lang::command;
 
+        auto dirReg = lang::DirectionRegister::Directional_Register_1;
+        auto reg = lang::Register::Register_1;
+        const auto rightDir = lang::Direction::Right;
+
+        auto currentBlockInitCommand = factory::build(lang::Operator::Stop);
+        auto blockToTheRightInitCommand = factory::build(lang::Operator::Increment, lang::Register::Register_1);
+
+        const auto currentCellStart = memory->toAddress(context->ip.x, context->ip.y, 0);
+
+        block::fillWithCommands(*dump, currentCellStart, 
+            { { currentBlockInitCommand, lang::MAX_CELL_INDEX } });
+        block::fillWithCommands(*dump, *context->ip.neighborCell(rightDir), 
+            { { blockToTheRightInitCommand, lang::MAX_CELL_INDEX } });
+
+        const int startFrom = lang::MAX_CELL_INDEX - 2;
+
+        context->directionRegisters[dirReg] = rightDir;
+        context->registers[reg] = startFrom;
+        auto command = factory::build(lang::Operator::SwapCell, dirReg, reg);
+        auto result = executioner->execute(command);
+
+        EXPECT_TRUE(result.success);
+
+        block::Block expectedCurrent = { { currentBlockInitCommand, startFrom }, 
+            { blockToTheRightInitCommand, lang::MAX_CELL_INDEX - startFrom } };
+
+        EXPECT_TRUE(block::hasCommands(*dump, currentCellStart, expectedCurrent));
+        block::Block expectedToTheRight = { { blockToTheRightInitCommand, startFrom },
+            { currentBlockInitCommand, lang::MAX_CELL_INDEX - startFrom } };
+        EXPECT_TRUE(block::hasCommands(*dump, *context->ip.neighborCell(rightDir), expectedToTheRight));
+	}
 }
